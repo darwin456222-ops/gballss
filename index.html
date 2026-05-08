@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>The Pets Mansion V52</title>
+    <title>The Pets Mansion V53</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
@@ -12,94 +12,101 @@
         
         /* Ekranlar */
         .screen { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; background: var(--bg); }
-        .game-card { background: rgba(255,255,255,0.95); padding: 20px; border-radius: 30px; width: 85%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .game-card { background: rgba(255,255,255,0.98); padding: 20px; border-radius: 30px; width: 85%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid #fff; }
         
-        /* Resim Alanı Düzeltme */
-        .pet-stage { height: 160px; display: flex; justify-content: center; align-items: center; position: relative; }
-        .pet-img { width: 120px; height: 120px; object-fit: contain; z-index: 5; }
-        .pet-placeholder { position: absolute; width: 100px; height: 100px; background: #ddd; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #666; font-size: 12px; }
+        /* Pet Stage */
+        .pet-stage { height: 180px; display: flex; justify-content: center; align-items: center; position: relative; margin: 15px 0; background: radial-gradient(circle, #fff 0%, #f0f0f0 100%); border-radius: 20px; }
+        .pet-img { width: 130px; height: 130px; object-fit: contain; z-index: 10; transition: transform 0.3s; }
+        .pet-name-bg { position: absolute; bottom: 10px; background: rgba(108, 92, 231, 0.1); padding: 4px 12px; border-radius: 10px; color: var(--p); font-weight: bold; font-size: 14px; }
 
         /* Barlar */
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 11px; font-weight: bold; margin-bottom: 15px; }
-        .bar { background: #eee; height: 10px; border-radius: 5px; border: 1px solid #ddd; overflow: hidden; }
-        .prog { height: 100%; width: 100%; transition: 0.3s; }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 11px; font-weight: bold; margin-bottom: 20px; }
+        .bar-container { text-align: left; }
+        .bar { background: #e0e0e0; height: 12px; border-radius: 6px; border: 1px solid #ccc; overflow: hidden; margin-top: 4px; }
+        .prog { height: 100%; width: 100%; transition: 0.5s ease-in-out; }
+
+        /* Odalar */
+        .room-panel { min-height: 80px; display: flex; align-items: center; justify-content: center; }
+        .action-btn { background: white; border: 2px solid #eee; border-radius: 15px; padding: 10px; font-size: 24px; cursor: pointer; transition: 0.2s; box-shadow: 0 3px 6px rgba(0,0,0,0.05); }
+        .action-btn:active { transform: scale(0.9); border-color: var(--p); }
 
         /* Navigasyon */
-        .nav-bar { position: fixed; bottom: 0; width: 100%; background: #fff; display: flex; justify-content: space-around; padding: 12px 0; border-top: 2px solid #eee; z-index: 100; }
-        .nav-btn { background: none; border: none; font-size: 24px; opacity: 0.3; display: flex; flex-direction: column; align-items: center; cursor: pointer; }
-        .nav-btn.active { opacity: 1; color: var(--p); transform: scale(1.1); }
-        .nav-btn span { font-size: 10px; margin-top: 2px; }
+        .nav-bar { position: fixed; bottom: 0; width: 100%; background: #fff; display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #ddd; z-index: 100; box-shadow: 0 -5px 15px rgba(0,0,0,0.03); }
+        .nav-btn { background: none; border: none; font-size: 26px; opacity: 0.3; display: flex; flex-direction: column; align-items: center; }
+        .nav-btn.active { opacity: 1; color: var(--p); }
+        .nav-btn span { font-size: 10px; font-weight: 600; margin-top: 3px; }
 
         /* Arena */
-        #arena-screen { display: none; position: fixed; inset: 0; background: #1e272e; z-index: 2000; color: white; }
-        .fighter { width: 90px; position: relative; }
-        .hp-box { width: 70px; height: 8px; background: #333; border: 1px solid white; position: absolute; top: -15px; left: 10px; border-radius: 4px; }
-        .hp-fill { height: 100%; background: #2ecc71; width: 100%; }
-        .jump { transform: translateY(-70px); transition: 0.1s; }
+        #arena-screen { display: none; position: fixed; inset: 0; background: #12171b; z-index: 2000; color: white; }
+        .fighter { width: 100px; transition: 0.1s; }
+        .hp-bar-arena { width: 80px; height: 10px; background: #333; border: 1px solid white; border-radius: 5px; margin-bottom: 5px; overflow: hidden; }
+        .jump { transform: translateY(-80px); }
 
-        input { padding: 12px; border-radius: 12px; border: 1px solid #ddd; width: 80%; text-align: center; margin-bottom: 10px; }
-        button { cursor: pointer; border: none; }
+        input { padding: 12px; border-radius: 12px; border: 1px solid #ddd; width: 80%; text-align: center; margin-bottom: 10px; font-size: 16px; }
     </style>
 </head>
 <body>
 
     <div id="login-screen" class="screen">
         <div class="game-card">
-            <h1 style="color:var(--p)">The Pets V52</h1>
-            <input type="text" id="name-in" placeholder="Petin Adı...">
-            <button onclick="saveName()" style="background:var(--p); color:white; padding:15px; width:88%; border-radius:15px; font-weight:bold;">OYUNA BAŞLA</button>
+            <h1 style="color:var(--p); margin-bottom: 5px;">The Pets V53</h1>
+            <p style="font-size: 12px; color: #666; margin-bottom: 20px;">Hadi arkadaşlarınla kapış!</p>
+            <input type="text" id="name-in" placeholder="Kendi Adını Yaz...">
+            <button onclick="saveName()" style="background:var(--p); color:white; border:none; padding:16px; width:90%; border-radius:15px; font-weight:bold; font-size:16px; box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3);">DEVAM ET</button>
         </div>
     </div>
 
     <div id="select-screen" class="screen" style="display:none;">
-        <div class="game-card">
-            <h2>Petini Seç</h2>
-            <div id="pet-list" style="display:grid; grid-template-columns: 1fr 1fr; gap: 15px;"></div>
+        <div class="game-card" style="max-height: 90%; overflow-y: auto;">
+            <h2 style="color:#333;">Karakterini Seç</h2>
+            <div id="pet-list" style="display:grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 10px;"></div>
         </div>
     </div>
 
     <div id="game-screen" style="display:none;">
-        <div style="position:fixed; top:15px; width:100%; display:flex; justify-content:center; gap:10px; z-index:100;">
-            <div style="background:white; padding:8px 15px; border-radius:15px; font-weight:bold; box-shadow:0 4px 10px rgba(0,0,0,0.1);">💰 <span id="gold-txt">0</span></div>
-            <div style="background:white; padding:8px 15px; border-radius:15px; font-weight:bold; box-shadow:0 4px 10px rgba(0,0,0,0.1);">⭐ Lvl <span id="lvl-txt">1</span></div>
+        <div style="position:fixed; top:15px; width:100%; display:flex; justify-content:center; gap:15px; z-index:100;">
+            <div style="background:white; padding:8px 18px; border-radius:20px; font-weight:bold; box-shadow:0 5px 15px rgba(0,0,0,0.08);">💰 <span id="gold-txt">0</span></div>
+            <div style="background:white; padding:8px 18px; border-radius:20px; font-weight:bold; box-shadow:0 5px 15px rgba(0,0,0,0.08);">⭐ <span id="lvl-txt">1</span></div>
         </div>
 
-        <div class="game-card" style="margin-top: 80px;">
+        <div class="game-card" style="margin-top: 85px;">
             <div class="stats-grid">
-                <div>🍔 Açlık <div class="bar"><div id="h-bar" class="prog" style="background:#2ecc71;"></div></div></div>
-                <div>🚽 Tuvalet <div class="bar"><div id="t-bar" class="prog" style="background:#9b59b6;"></div></div></div>
-                <div>😴 Uyku <div class="bar"><div id="s-bar" class="prog" style="background:#3498db;"></div></div></div>
-                <div>🎮 Oyun <div class="bar"><div id="p-bar" class="prog" style="background:#f1c40f;"></div></div></div>
+                <div class="bar-container">🍔 Açlık <div class="bar"><div id="h-bar" class="prog" style="background:#2ecc71;"></div></div></div>
+                <div class="bar-container">🚽 Tuvalet <div class="bar"><div id="t-bar" class="prog" style="background:#9b59b6;"></div></div></div>
+                <div class="bar-container">😴 Uyku <div class="bar"><div id="s-bar" class="prog" style="background:#3498db;"></div></div></div>
+                <div class="bar-container">🎮 Oyun <div class="bar"><div id="p-bar" class="prog" style="background:#f1c40f;"></div></div></div>
             </div>
             
             <div class="pet-stage">
-                <div class="pet-placeholder" id="placeholder-text">Yükleniyor...</div>
-                <img id="main-pet-img" class="pet-img" src="">
+                <img id="main-pet-img" class="pet-img" src="" alt="Pet">
+                <div class="pet-name-bg" id="display-pet-name">Yükleniyor...</div>
             </div>
 
             <div id="kitchen-panel" class="room-panel">
-                <div style="display:flex; justify-content:center; gap:10px;">
-                    <button onclick="eat('🍕', 25, 10)" style="font-size:30px; background:white; border-radius:10px;">🍕</button>
-                    <button onclick="eat('🍔', 30, 15)" style="font-size:30px; background:white; border-radius:10px;">🍔</button>
-                    <button onclick="eat('🍦', 10, 5)" style="font-size:30px; background:white; border-radius:10px;">🍦</button>
+                <div style="display:flex; gap:12px;">
+                    <button class="action-btn" onclick="eat('🍕', 25, 10)">🍕</button>
+                    <button class="action-btn" onclick="eat('🍔', 35, 15)">🍔</button>
+                    <button class="action-btn" onclick="eat('🍩', 15, 5)">🍩</button>
                 </div>
             </div>
 
             <div id="bath-panel" class="room-panel" style="display:none;">
-                <button onclick="action('toilet')" style="font-size:40px; background:#9b59b6; color:white; padding:20px; border-radius:50%;">🚽</button>
+                <button class="action-btn" onclick="action('toilet')" style="padding: 15px 40px;">🚽 TEMİZLEN</button>
             </div>
 
             <div id="bedroom-panel" class="room-panel" style="display:none;">
-                <button onclick="toggleSleep()" id="sleep-btn" style="background:var(--p); color:white; padding:15px 30px; border-radius:15px; font-weight:bold;">UYUT</button>
+                <button class="action-btn" id="sleep-btn" onclick="toggleSleep()" style="background:var(--p); color:white; font-size:16px; font-weight:bold; padding: 15px 40px;">😴 UYUT</button>
             </div>
 
             <div id="office-panel" class="room-panel" style="display:none;">
-                <button onclick="work()" style="background:#2d3436; color:white; padding:15px 30px; border-radius:15px; font-weight:bold;">KOD YAZ (+💰)</button>
+                <button class="action-btn" onclick="work()" style="background:#2d3436; color:white; font-size:16px; font-weight:bold; padding: 15px 40px;">💻 KOD YAZ (+💰)</button>
             </div>
 
             <div id="garden-panel" class="room-panel" style="display:none;">
-                <input type="number" id="room-id-input" placeholder="Oda Kodu">
-                <button onclick="enterArena()" style="background:var(--s); color:white; padding:12px; border-radius:12px; font-weight:bold; width:80%;">ARENAYA GİR ⚔️</button>
+                <div style="width: 100%;">
+                    <input type="number" id="room-id-input" placeholder="Savaş Odası Kodu">
+                    <button onclick="enterArena()" style="background:var(--s); color:white; border:none; padding:15px; border-radius:15px; font-weight:bold; width:85%;">ARENAYA GİR ⚔️</button>
+                </div>
             </div>
         </div>
 
@@ -113,23 +120,23 @@
     </div>
 
     <div id="arena-screen">
-        <div style="padding:15px; display:flex; justify-content: space-between; align-items: center;">
-            <button onclick="exitArena()" style="background:var(--s); color:white; padding:8px 15px; border-radius:8px;">ÇIK</button>
-            <div id="arena-info">Oda: -</div>
+        <div style="padding:20px; display:flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.3);">
+            <button onclick="exitArena()" style="background:var(--s); color:white; border:none; padding:10px 20px; border-radius:10px; font-weight:bold;">KAÇ!</button>
+            <div id="arena-info" style="font-weight:bold; color:var(--s);">ODA: -</div>
         </div>
-        <div style="height:50%; display:flex; justify-content:space-around; align-items:flex-end; padding-bottom:40px;">
+        <div style="height:55%; display:flex; justify-content:space-around; align-items:flex-end; padding-bottom:50px;">
             <div id="p1" class="fighter">
-                <div class="hp-box"><div id="p1-hp" class="hp-fill"></div></div>
-                <img id="p1-img" src="" style="width:100%">
-                <div id="p1-name" style="font-size:12px;">-</div>
+                <div class="hp-bar-arena"><div id="p1-hp" style="height:100%; background:#2ecc71; width:100%;"></div></div>
+                <img id="p1-img" src="" style="width:100%; filter: drop-shadow(0 0 10px rgba(46, 204, 113, 0.4));">
+                <div id="p1-name" style="font-weight:bold; margin-top:5px;">-</div>
             </div>
             <div id="p2" class="fighter">
-                <div class="hp-box"><div id="p2-hp" class="hp-fill"></div></div>
-                <img id="p2-img" src="" style="width:100%">
-                <div id="p2-name" style="font-size:12px;">-</div>
+                <div class="hp-bar-arena"><div id="p2-hp" style="height:100%; background:#2ecc71; width:100%;"></div></div>
+                <img id="p2-img" src="" style="width:100%; filter: drop-shadow(0 0 10px rgba(231, 76, 60, 0.4));">
+                <div id="p2-name" style="font-weight:bold; margin-top:5px;">-</div>
             </div>
         </div>
-        <button onclick="arenaHit()" style="width:120px; height:120px; background:var(--s); border:5px solid white; border-radius:50%; color:white; font-weight:bold; font-size:20px; box-shadow:0 6px 0 #922b21;">VUR!</button>
+        <button onclick="arenaHit()" style="width:130px; height:130px; background:var(--s); border:6px solid #fff; border-radius:50%; color:white; font-weight:bold; font-size:24px; box-shadow:0 0 30px rgba(231, 76, 60, 0.5); active { transform: scale(0.9); }">VUR!</button>
     </div>
 
     <script>
@@ -137,28 +144,28 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
+        // Resim yollarını GitHub veya klasör yapısına göre tam kontrol et
         const pets = [
             {n:'Squeak', i:'Squeak.jpg'}, {n:'Flip', i:'Flip.jpg'}, 
             {n:'Sugar', i:'Sugar.jpg'}, {n:'Dot', i:'Dot.jpg'}, 
             {n:'Gus', i:'Gus.jpg'}, {n:'Blinky', i:'Blinky.jpg'}
         ];
 
-        let st = { name:"", coins:100, pet:null, img:null, lvl:1, xp:0, hunger:50, toilet:0, sleep:0, play:0, isSleeping: false };
+        let st = { name:"", coins:100, pet:null, img:null, lvl:1, xp:0, hunger:60, toilet:0, sleep:0, play:0, isSleeping: false };
         let currentRoom = null; let mySlot = "";
 
         function init() {
             const list = document.getElementById('pet-list');
+            list.innerHTML = "";
             pets.forEach(p => { 
-                list.innerHTML += `<div onclick="selectPet('${p.n}','${p.i}')" style="background:#fff; padding:10px; border-radius:15px; border:2px solid #eee; text-align:center;">
-                    <div style="width:100%; height:80px; background:#f0f0f0; border-radius:10px; display:flex; align-items:center; justify-content:center; margin-bottom:5px;">
-                        <img src="${p.i}" style="max-width:100%; max-height:100%;" onerror="this.style.display='none'">
-                        <span style="font-size:10px; color:#999; position:absolute;">${p.n}</span>
-                    </div>
-                    <b>${p.n}</b>
+                list.innerHTML += `
+                <div onclick="selectPet('${p.n}','${p.i}')" style="background:#fff; padding:15px; border-radius:20px; border:2px solid #eee; text-align:center; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+                    <img src="${p.i}" style="width:80px; height:80px; object-fit:contain;" onerror="this.src='https://via.placeholder.com/80?text=${p.n}'">
+                    <div style="margin-top:10px; font-weight:bold; color:#444;">${p.n}</div>
                 </div>`; 
             });
 
-            let saved = localStorage.getItem('pets_v52');
+            let saved = localStorage.getItem('pets_v53');
             if(saved) {
                 st = JSON.parse(saved);
                 if(st.name && st.pet) {
@@ -166,7 +173,7 @@
                     showGame();
                 }
             }
-            setInterval(() => { if(!st.isSleeping && st.pet) { st.hunger = Math.max(0, st.hunger - 1); update(); }}, 5000);
+            setInterval(() => { if(!st.isSleeping && st.pet) { st.hunger = Math.max(0, st.hunger - 1); update(); }}, 6000);
         }
 
         function saveName() {
@@ -182,9 +189,8 @@
 
         function showGame() {
             document.getElementById('game-screen').style.display = 'block';
-            const img = document.getElementById('main-pet-img');
-            img.src = st.img;
-            document.getElementById('placeholder-text').innerText = st.pet; 
+            document.getElementById('main-pet-img').src = st.img;
+            document.getElementById('display-pet-name').innerText = st.pet + " (" + st.name + ")";
             update();
         }
 
@@ -195,29 +201,34 @@
             document.getElementById('t-bar').style.width = st.toilet + "%";
             document.getElementById('s-bar').style.width = st.sleep + "%";
             document.getElementById('p-bar').style.width = st.play + "%";
-            localStorage.setItem('pets_v52', JSON.stringify(st));
+            localStorage.setItem('pets_v53', JSON.stringify(st));
         }
 
         function goRoom(r, b) {
             document.querySelectorAll('.room-panel').forEach(p => p.style.display = 'none');
             document.querySelectorAll('.nav-btn').forEach(n => n.classList.remove('active'));
-            document.getElementById(r + '-panel').style.display = 'block';
+            document.getElementById(r + '-panel').style.display = 'flex';
             b.classList.add('active');
         }
 
-        function eat(f, h, t) { if(st.isSleeping) return; st.hunger = Math.min(100, st.hunger + h); st.toilet = Math.min(100, st.toilet + t); addXP(10); update(); }
-        function action(type) { if(type === 'toilet') { st.toilet = 0; addXP(5); } update(); }
-        function work() { st.coins += 10; addXP(20); update(); }
-        function addXP(val) { st.xp += val; if(st.xp >= 100) { st.xp = 0; st.lvl++; } }
-        function toggleSleep() { st.isSleeping = !st.isSleeping; document.getElementById('main-pet-img').style.opacity = st.isSleeping ? "0.5" : "1"; document.getElementById('sleep-btn').innerText = st.isSleeping ? "UYANDIR" : "UYUT"; }
+        function eat(f, h, t) { if(st.isSleeping) return; st.hunger = Math.min(100, st.hunger + h); st.toilet = Math.min(100, st.toilet + t); st.coins += 2; update(); }
+        function action(type) { if(type === 'toilet') { st.toilet = 0; st.coins += 5; update(); } }
+        function work() { st.coins += 20; update(); }
+        function toggleSleep() { 
+            st.isSleeping = !st.isSleeping; 
+            document.getElementById('main-pet-img').style.transform = st.isSleeping ? "rotate(90deg) scale(0.8)" : "none"; 
+            document.getElementById('sleep-btn').innerText = st.isSleeping ? "☀️ UYANDIR" : "😴 UYUT"; 
+            document.getElementById('sleep-btn').style.background = st.isSleeping ? "#f1c40f" : "#6c5ce7";
+        }
 
         // ARENA
         function enterArena() {
             let rid = document.getElementById('room-id-input').value;
             if(!rid) return;
             currentRoom = db.ref("rooms/" + rid);
-            document.getElementById('arena-info').innerText = "Oda: " + rid;
+            document.getElementById('arena-info').innerText = "ODA: " + rid;
             document.getElementById('arena-screen').style.display = 'block';
+            
             currentRoom.once('value', (s) => {
                 let d = s.val() || {};
                 mySlot = (!d.p1) ? "p1" : "p2";
@@ -237,7 +248,7 @@
             currentRoom.child(target).once('value', (s) => { if(s.exists()) currentRoom.child(target).update({ hp: Math.max(0, s.val().hp - 10) }); });
         }
 
-        function exitArena() { if(mySlot && currentRoom) currentRoom.child(mySlot).remove(); currentRoom.off(); document.getElementById('arena-screen').style.display='none'; }
+        function exitArena() { if(mySlot && currentRoom) currentRoom.child(mySlot).remove(); if(currentRoom) currentRoom.off(); document.getElementById('arena-screen').style.display='none'; }
 
         init();
     </script>
