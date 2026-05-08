@@ -132,7 +132,8 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        const pets = [{n:'Squeak',i:'Squeak.jpg'},{n:'Flip',i:'Flip.jpg'},{n:'Sugar',i:'Sugar.jpg'},{n:'Dot',i:'Dot.jpg'},{n:'Gus',i:'Gus.jpg'},{n:'Blinky',i:'Blinky.jpg'}];
+        const pets = [{n:'Squeak',i:'squeak.jpg'},{n:'Flip',i:'flip.jpg'},{n:'Sugar',i:'sugar.jpg'},{n:'Dot',i:'dot.jpg'},
+{n:'Gus',i:'gus.jpg'},{n:'Blinky',i:'blinky.jpg'}];
         let st = { name:"", coins:100, pet:null, img:null, lvl:1, xp:0, hunger:50, toilet:0, sleep:0, play:0, isSleeping: false };
         let currentRoom = null; let mySlot = "";
 
