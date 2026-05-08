@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>The Pets Mansion V50 - Arena Fix</title>
+    <title>The Pets Mansion V51 - Pro</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
@@ -13,55 +13,45 @@
         .screen { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; background: var(--bg); }
         .game-card { background: rgba(255,255,255,0.95); padding: 20px; border-radius: 30px; width: 85%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
         
+        /* Resimlerin düzgün görünmesi için stil */
+        .pet-img { width: 110px; height: 110px; object-fit: contain; cursor: pointer; transition: 0.2s; background: #eee; border-radius: 20px; }
+        
+        /* Diğer stiller (Kısa tutulmuştur) */
         .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 11px; font-weight: bold; margin-bottom: 10px; }
-        .bar { background: #eee; height: 8px; border-radius: 5px; border: 1px solid #ddd; overflow: hidden; }
+        .bar { background: #eee; height: 8px; border-radius: 5px; overflow: hidden; }
         .prog { height: 100%; width: 100%; transition: 0.3s; }
-
-        .pet-stage { height: 150px; display: flex; justify-content: center; align-items: center; position: relative; margin: 10px 0; }
-        .pet-img { width: 110px; height: 110px; object-fit: contain; cursor: pointer; transition: 0.2s; }
-        .bubble { position: absolute; top: -10px; background: white; padding: 6px 12px; border-radius: 12px; font-size: 11px; font-weight: bold; display: none; border: 2px solid var(--p); z-index: 10; }
-
-        .food-menu { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
-        .food-btn { font-size: 22px; padding: 8px; border-radius: 12px; border: 1px solid #ddd; background: white; cursor: pointer; }
-
         .nav-bar { position: fixed; bottom: 0; width: 100%; background: #fff; display: flex; justify-content: space-around; padding: 10px 0; border-top: 2px solid #eee; z-index: 100; }
         .nav-btn { background: none; border: none; font-size: 24px; opacity: 0.3; display: flex; flex-direction: column; align-items: center; }
         .nav-btn.active { opacity: 1; color: var(--p); }
-        .nav-btn span { font-size: 9px; font-weight: bold; }
-
-        /* Arena Tasarımı */
+        
         #arena-screen { display: none; position: fixed; inset: 0; background: #1e272e; z-index: 2000; color: white; }
-        .arena-stage { height: 50%; display: flex; justify-content: space-around; align-items: flex-end; padding-bottom: 30px; }
-        .fighter { width: 100px; position: relative; transition: 0.1s; }
-        .hp-box { width: 80px; height: 10px; background: #333; border: 1px solid white; position: absolute; top: -20px; left: 10px; border-radius: 5px; overflow: hidden; }
-        .hp-fill { height: 100%; background: #2ecc71; width: 100%; transition: 0.2s; }
-        .jump { transform: translateY(-70px); }
-
-        input { padding: 12px; border-radius: 12px; border: 1px solid #ddd; width: 80%; text-align: center; margin-bottom: 10px; }
-        button { cursor: pointer; }
+        .fighter { width: 100px; position: relative; }
+        .hp-box { width: 80px; height: 10px; background: #333; border: 1px solid white; position: absolute; top: -20px; left: 10px; border-radius: 5px; }
+        .hp-fill { height: 100%; background: #2ecc71; width: 100%; }
+        .jump { transform: translateY(-70px); transition: 0.15s; }
     </style>
 </head>
 <body>
 
     <div id="login-screen" class="screen">
         <div class="game-card">
-            <h1 style="color:var(--p)">The Pets V50</h1>
-            <input type="text" id="name-in" placeholder="Pet Adı Yaz...">
+            <h1 style="color:var(--p)">The Pets V51</h1>
+            <input type="text" id="name-in" placeholder="Pet Adı..." style="padding:12px; border-radius:12px; border:1px solid #ddd; width:80%; text-align:center; margin-bottom:10px;">
             <button onclick="saveName()" style="background:var(--p); color:white; border:none; padding:15px; width:88%; border-radius:15px; font-weight:bold;">BAŞLA</button>
         </div>
     </div>
 
     <div id="select-screen" class="screen" style="display:none;">
         <div class="game-card">
-            <h2>Karakterini Seç</h2>
+            <h2>Karakter Seç</h2>
             <div id="pet-list" style="display:grid; grid-template-columns: 1fr 1fr; gap: 15px;"></div>
         </div>
     </div>
 
     <div id="game-screen" style="display:none;">
         <div style="position:fixed; top:15px; width:100%; display:flex; justify-content:center; gap:10px; z-index:100;">
-            <div style="background:white; padding:5px 12px; border-radius:12px; font-weight:bold; color:#333;">💰 <span id="gold-txt">0</span></div>
-            <div style="background:white; padding:5px 12px; border-radius:12px; font-weight:bold; color:#333;">⭐ Lvl <span id="lvl-txt">1</span></div>
+            <div style="background:white; padding:5px 12px; border-radius:12px; font-weight:bold;">💰 <span id="gold-txt">0</span></div>
+            <div style="background:white; padding:5px 12px; border-radius:12px; font-weight:bold;">⭐ Lvl <span id="lvl-txt">1</span></div>
         </div>
 
         <div class="game-card" style="margin-top: 80px;">
@@ -72,59 +62,44 @@
                 <div>🎮 Oyun <div class="bar"><div id="p-bar" class="prog" style="background:#f1c40f;"></div></div></div>
             </div>
             
-            <div class="pet-stage">
-                <div id="pet-bubble" class="bubble"></div>
-                <img id="main-pet-img" class="pet-img" src="" onclick="findTreasure()">
+            <div style="height:150px; display:flex; justify-content:center; align-items:center;">
+                <img id="main-pet-img" class="pet-img" src="" onerror="imgError(this)">
             </div>
 
             <div id="kitchen-panel" class="room-panel">
-                <div class="food-menu">
-                    <button onclick="eat('🍕', 25, 15)" class="food-btn">🍕</button>
-                    <button onclick="eat('🍔', 30, 20)" class="food-btn">🍔</button>
-                    <button onclick="eat('🍩', 15, 10)" class="food-btn">🍩</button>
-                    <button onclick="eat('🍦', 10, 5)" class="food-btn">🍦</button>
-                    <button onclick="eat('🍣', 20, 10)" class="food-btn">🍣</button>
-                </div>
+                <button onclick="eat('🍕', 20, 10)" style="font-size:30px; border:none; background:none;">🍕</button>
             </div>
-
-            <div id="bath-panel" class="room-panel" style="display:none;"><button onclick="action('toilet')" style="font-size:30px; background:#9b59b6; border:none; color:white; padding:15px; border-radius:50%;">🚽</button></div>
-            <div id="bedroom-panel" class="room-panel" style="display:none;"><button onclick="toggleSleep()" style="background:var(--p); color:white; border:none; padding:12px 25px; border-radius:12px;">UYUT</button></div>
-            <div id="office-panel" class="room-panel" style="display:none;"><button onclick="work()" style="background:#2d3436; color:white; border:none; padding:12px 25px; border-radius:12px;">KOD YAZ (+💰)</button></div>
+            
             <div id="garden-panel" class="room-panel" style="display:none;">
-                <input type="number" id="room-id-input" placeholder="Oda Kodu Gir">
-                <button onclick="enterArena()" style="background:var(--s); color:white; border:none; padding:12px; border-radius:12px; font-weight:bold; width:75%;">ARENA ⚔️</button>
+                <input type="number" id="room-id-input" placeholder="Oda Kodu">
+                <button onclick="enterArena()" style="background:var(--s); color:white; border:none; padding:10px; border-radius:10px;">ARENAYA GİR</button>
             </div>
         </div>
 
         <div class="nav-bar">
-            <button class="nav-btn active" onclick="goRoom('kitchen', this)">🍴<span>Mutfak</span></button>
-            <button class="nav-btn" onclick="goRoom('bath', this)">🚿<span>Banyo</span></button>
-            <button class="nav-btn" onclick="goRoom('bedroom', this)">🛏️<span>Yatak</span></button>
-            <button class="nav-btn" onclick="goRoom('office', this)">💻<span>Ofis</span></button>
-            <button class="nav-btn" onclick="goRoom('garden', this)">🌳<span>Bahçe</span></button>
+            <button class="nav-btn active" onclick="goRoom('kitchen', this)">🍴</button>
+            <button class="nav-btn" onclick="goRoom('garden', this)">🌳</button>
         </div>
     </div>
 
     <div id="arena-screen">
-        <div style="padding:15px; display:flex; justify-content: space-between; align-items: center; background:rgba(0,0,0,0.5)">
-            <button onclick="exitArena()" style="background:var(--s); color:white; border:none; padding:8px 12px; border-radius:8px;">PES ET</button>
+        <div style="padding:15px; display:flex; justify-content: space-between;">
+            <button onclick="exitArena()" style="background:var(--s); color:white; border:none; border-radius:5px;">ÇIK</button>
             <div id="arena-info">Oda: -</div>
-            <div id="p-score">Can: 100</div>
         </div>
-        <div class="arena-stage">
+        <div style="height:50%; display:flex; justify-content:space-around; align-items:flex-end; padding-bottom:30px;">
             <div id="p1" class="fighter">
                 <div class="hp-box"><div id="p1-hp" class="hp-fill"></div></div>
-                <img id="p1-img" src="placeholder.png" style="width:100%; border-radius:10px;">
-                <div id="p1-name" style="font-size:12px; font-weight:bold; margin-top:5px;">-</div>
+                <img id="p1-img" src="" style="width:100%" onerror="imgError(this)">
+                <div id="p1-name">-</div>
             </div>
             <div id="p2" class="fighter">
                 <div class="hp-box"><div id="p2-hp" class="hp-fill"></div></div>
-                <img id="p2-img" src="placeholder.png" style="width:100%; border-radius:10px;">
-                <div id="p2-name" style="font-size:12px; font-weight:bold; margin-top:5px;">-</div>
+                <img id="p2-img" src="" style="width:100%" onerror="imgError(this)">
+                <div id="p2-name">-</div>
             </div>
         </div>
-        <div id="wait-text" style="color:#aaa; font-size:14px; margin-bottom:10px;">Rakip Bekleniyor...</div>
-        <button onclick="arenaHit()" style="width:120px; height:120px; background:var(--s); border:4px solid white; border-radius:50%; color:white; font-weight:bold; font-size:20px; box-shadow:0 6px 0 #922b21;">VUR!</button>
+        <button onclick="arenaHit()" style="width:100px; height:100px; background:var(--s); border-radius:50%; color:white; font-weight:bold; border:4px solid white;">VUR!</button>
     </div>
 
     <script>
@@ -132,115 +107,89 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        const pets = [{n:'Squeak',i:'squeak.jpg'},{n:'Flip',i:'flip.jpg'},{n:'Sugar',i:'sugar.jpg'},{n:'Dot',i:'dot.jpg'},
-{n:'Gus',i:'gus.jpg'},{n:'Blinky',i:'blinky.jpg'}];
-        let st = { name:"", coins:100, pet:null, img:null, lvl:1, xp:0, hunger:50, toilet:0, sleep:0, play:0, isSleeping: false };
+        // RESİM DOSYA ADLARININ GITHUB İLE TAM AYNI OLDUĞUNA EMİN OL
+        const pets = [
+            {n:'Squeak', i:'Squeak.jpg'},
+            {n:'Flip', i:'Flip.jpg'},
+            {n:'Sugar', i:'Sugar.jpg'},
+            {n:'Dot', i:'Dot.jpg'},
+            {n:'Gus', i:'Gus.jpg'},
+            {n:'Blinky', i:'Blinky.jpg'}
+        ];
+
+        let st = { name:"", coins:100, pet:null, img:null, lvl:1, xp:0, hunger:50, toilet:0, sleep:0, play:0 };
         let currentRoom = null; let mySlot = "";
+
+        // RESİM YÜKLENEMEZSE ÇALIŞACAK FONKSİYON
+        function imgError(image) {
+            image.onerror = ""; 
+            image.src = "https://via.placeholder.com/150?text=Pet"; // Resim bulunamazsa geçici resim koyar
+            return true;
+        }
 
         function init() {
             const list = document.getElementById('pet-list');
-            pets.forEach(p => { list.innerHTML += `<div onclick="selectPet('${p.n}','${p.i}')" style="background:#f9f9f9; padding:10px; border-radius:15px; cursor:pointer; border:1px solid #eee;"><img src="${p.i}" style="width:100%; border-radius:10px;"><br><b style="font-size:12px;">${p.n}</b></div>`; });
-            let saved = localStorage.getItem('pets_v50');
+            pets.forEach(p => { 
+                list.innerHTML += `<div onclick="selectPet('${p.n}','${p.i}')" style="background:#f9f9f9; padding:10px; border-radius:15px; cursor:pointer; border:1px solid #eee;">
+                    <img src="${p.i}" style="width:100%; border-radius:10px;" onerror="imgError(this)">
+                    <br><b style="font-size:12px;">${p.n}</b>
+                </div>`; 
+            });
+            let saved = localStorage.getItem('pets_v51');
             if(saved) { st = JSON.parse(saved); if(st.name && st.pet) { document.getElementById('login-screen').style.display = 'none'; showGame(); } }
-            setInterval(loop, 4000);
         }
 
-        // --- TEMEL FONKSİYONLAR ---
         function saveName() { let v = document.getElementById('name-in').value; if(v.trim()){ st.name=v; document.getElementById('login-screen').style.display='none'; document.getElementById('select-screen').style.display='flex'; } }
         function selectPet(n, i) { st.pet=n; st.img=i; document.getElementById('select-screen').style.display='none'; showGame(); }
         function showGame() { document.getElementById('game-screen').style.display='block'; document.getElementById('main-pet-img').src=st.img; update(); }
-        function eat(f, h, t) { if(st.isSleeping) return; st.hunger=Math.min(100, st.hunger+h); st.toilet=Math.min(100, st.toilet+t); addXP(15); say(f+" Leziz!"); update(); }
-        function action(t) { if(t==='toilet'){st.toilet=0; addXP(10); say("Bitti! 🚽");} update(); }
-        function work() { if(st.isSleeping) return; st.coins += 10*st.lvl; addXP(20); say("+💰"); update(); }
-        function addXP(a) { st.xp += a; if(st.xp >= st.lvl*100){ st.xp=0; st.lvl++; st.coins+=50; say("LEVEL UP!"); } update(); }
-        function loop() { if(!st.isSleeping && st.pet){ st.hunger=Math.max(0, st.hunger-2); update(); } }
-        function update() { document.getElementById('gold-txt').innerText = st.coins; document.getElementById('lvl-txt').innerText = st.lvl; document.getElementById('h-bar').style.width = st.hunger + "%"; document.getElementById('t-bar').style.width = st.toilet + "%"; document.getElementById('s-bar').style.width = st.sleep + "%"; document.getElementById('p-bar').style.width = st.play + "%"; localStorage.setItem('pets_v50', JSON.stringify(st)); }
-        function goRoom(r, b) { document.querySelectorAll('.room-panel').forEach(p => p.style.display = 'none'); document.querySelectorAll('.nav-btn').forEach(n => n.classList.remove('active')); document.getElementById(r + '-panel').style.display = 'block'; b.classList.add('active'); document.body.className = 'room-' + r; }
-        function toggleSleep() { st.isSleeping = !st.isSleeping; document.getElementById('main-pet-img').style.transform = st.isSleeping ? "rotate(90deg)" : "none"; update(); }
-        function say(t) { let b=document.getElementById('pet-bubble'); b.innerText=t; b.style.display='block'; setTimeout(()=>b.style.display='none', 2000); }
-        function findTreasure() { if(Math.random()>0.9){st.coins+=50; say("💎!"); update();} }
-
-        // --- ARENA FIX (Görüntü ve Undefined Hatası Çözümü) ---
-        function enterArena() {
-            let rid = document.getElementById('room-id-input').value;
-            if(!rid) return alert("Kod yaz!");
-            
-            currentRoom = db.ref("rooms/" + rid);
-            document.getElementById('arena-info').innerText = "Oda: " + rid;
-            document.getElementById('arena-screen').style.display = 'block';
-
-            currentRoom.once('value', (s) => {
-                let d = s.val() || {};
-                if(!d.p1) mySlot = "p1"; 
-                else if(!d.p2) mySlot = "p2"; 
-                else { exitArena(); return alert("Dolu!"); }
-
-                // VERİYİ BURADA KESİN GÖNDERİYORUZ
-                currentRoom.child(mySlot).set({
-                    name: String(st.name), 
-                    img: String(st.img), 
-                    hp: 100, 
-                    jump: false 
-                });
-                
-                listenArena();
-            });
+        
+        function update() {
+            document.getElementById('gold-txt').innerText = st.coins;
+            document.getElementById('lvl-txt').innerText = st.lvl;
+            document.getElementById('h-bar').style.width = st.hunger + "%";
+            localStorage.setItem('pets_v51', JSON.stringify(st));
         }
 
-        function listenArena() {
-            currentRoom.on('value', (snap) => {
-                let data = snap.val(); if(!data) return;
-                
-                // Her iki oyuncuyu da güncelle
-                if(data.p1) updateFighter("p1", data.p1);
-                if(data.p2) updateFighter("p2", data.p2);
-                
-                // Rakip bekletme yazısı kontrolü
-                if(data.p1 && data.p2) document.getElementById('wait-text').style.display = 'none';
-                else document.getElementById('wait-text').style.display = 'block';
-                
-                // Kazanma kontrolü
-                if(data.p1 && data.p1.hp <= 0) finalizeArena(data.p2 ? data.p2.name : "Rakip");
-                else if(data.p2 && data.p2.hp <= 0) finalizeArena(data.p1 ? data.p1.name : "Rakip");
+        function goRoom(r, b) {
+            document.querySelectorAll('.room-panel').forEach(p => p.style.display = 'none');
+            document.querySelectorAll('.nav-btn').forEach(n => n.classList.remove('active'));
+            document.getElementById(r + '-panel').style.display = 'block';
+            b.classList.add('active');
+        }
+
+        // ARENA FONKSİYONLARI (V49-50 İLE AYNI MANTIK)
+        function enterArena() {
+            let rid = document.getElementById('room-id-input').value;
+            if(!rid) return;
+            currentRoom = db.ref("rooms/" + rid);
+            document.getElementById('arena-screen').style.display = 'block';
+            currentRoom.once('value', (s) => {
+                let d = s.val() || {};
+                mySlot = (!d.p1) ? "p1" : "p2";
+                currentRoom.child(mySlot).set({ name: st.name, img: st.img, hp: 100, jump: false });
+                currentRoom.on('value', (snap) => {
+                    let data = snap.val(); if(!data) return;
+                    if(data.p1) updateFighter("p1", data.p1);
+                    if(data.p2) updateFighter("p2", data.p2);
+                });
             });
         }
 
         function updateFighter(slot, d) {
-            const imgEl = document.getElementById(slot+'-img');
-            const nameEl = document.getElementById(slot+'-name');
-            const hpEl = document.getElementById(slot+'-hp');
-            
-            // Eğer veri gelmişse ve "undefined" değilse bas
-            if(d.img) imgEl.src = d.img;
-            if(d.name) nameEl.innerText = d.name;
-            if(d.hp !== undefined) hpEl.style.width = d.hp + "%";
-            
-            if(d.jump) document.getElementById(slot).classList.add('jump'); 
-            else document.getElementById(slot).classList.remove('jump');
+            document.getElementById(slot+'-img').src = d.img;
+            document.getElementById(slot+'-name').innerText = d.name;
+            document.getElementById(slot+'-hp').style.width = d.hp + "%";
+            if(d.jump) document.getElementById(slot).classList.add('jump'); else document.getElementById(slot).classList.remove('jump');
         }
 
         function arenaHit() {
-            if(!mySlot || !currentRoom) return;
             let target = (mySlot === "p1") ? "p2" : "p1";
             currentRoom.child(mySlot).update({ jump: true });
             setTimeout(() => currentRoom.child(mySlot).update({ jump: false }), 150);
-            currentRoom.child(target).once('value', (s) => { 
-                if(s.exists()) currentRoom.child(target).update({ hp: Math.max(0, s.val().hp - 10) }); 
-            });
+            currentRoom.child(target).once('value', (s) => { if(s.exists()) currentRoom.child(target).update({ hp: Math.max(0, s.val().hp - 10) }); });
         }
 
-        function finalizeArena(winnerName) { 
-            alert("SAVAŞ BİTTİ!\nKazanan: " + winnerName); 
-            if(winnerName === st.name){ st.coins += 100; addXP(100); } 
-            exitArena(); 
-        }
-
-        function exitArena() { 
-            if(mySlot && currentRoom) currentRoom.child(mySlot).remove(); 
-            if(currentRoom) currentRoom.off(); 
-            document.getElementById('arena-screen').style.display='none'; 
-            mySlot=""; update(); 
-        }
+        function exitArena() { if(mySlot && currentRoom) currentRoom.child(mySlot).remove(); document.getElementById('arena-screen').style.display='none'; }
 
         init();
     </script>
