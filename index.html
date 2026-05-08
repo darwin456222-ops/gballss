@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Pets: Hız Savaşı V20</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <style>
+        :root { --bg: #87CEEB; }
+        body { font-family: sans-serif; background: var(--bg); margin: 0; text-align: center; color: #333; touch-action: manipulation; }
+        .game-card { background: #fff; padding: 20px; border-radius: 30px; width: 90%; max-width: 420px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); margin: 15px auto; }
+        .bar { background: #eee; height: 12px; border-radius: 10px; margin: 5px 0; overflow: hidden; border: 1px solid #ddd; }
+        .prog { height: 100%; transition: 0.1s; }
+        .pet-img { width: 120px; height: 120px; object-fit: contain; }
+        
+        @keyframes hitEffect { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
+        .anim-atk { animation: hitEffect 0.1s ease; }
+        
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 300; flex-direction: column; align-items: center; justify-content: center; color: #fff; padding: 20px; }
+        .room-item { background: #fff; color: #333; padding: 10px; margin: 5px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; width: 85%; }
+        button { border: none; padding: 12px; border-radius: 15px; cursor: pointer; font-weight: bold; transition: 0.1s; box-shadow: 0 4px 0 rgba(0,0,0,0.1); }
+        button:active { transform: translateY(2px); box-shadow: none; }
+        
+        #arena-modal { background: linear-gradient(135deg, #2c3e50, #000); }
+        .speed-btn { background: #e74c3c; color: #fff; padding: 20px 50px; font-size: 24px; border-radius: 50px; width: 80%; }
+        
+        /* HER ZAMAN GÖRÜNÜR BUTON STİLİ */
+        .btn-change { background: #95a5a6 !important; color: white !important; }
+    </style>
+</head>
+<body>
+
+    <div id="selection-screen">
+        <h2 style="color:#fff; margin:20px">Petini Seç</h2>
+        <div id="petContainer" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 10px;"></div>
+    </div>
+
+    <div id="game-screen" style="display:none;">
+        <div style="display:flex; gap:8px; margin-top:10px; justify-content: center;">
+            <div style="background:#fff; padding:10px; border-radius:15px; font-weight:bold;">💰 <span id="c-c">0</span></div>
+            <button onclick="openLobby()" style="background:#e74c3c; color:#fff;">⚔️ ARENA</button>
+            <div style="background:#fff; padding:10px; border-radius:15px; font-weight:bold;">⭐ <span id="l-c">1</span></div>
+        </div>
+
+        <div class="game-card">
+            <h3 id="p-n" style="margin:5px">Yükleniyor...</h3>
+            <div class="bar"><div id="xp-bar" class="prog" style="background:#27ae60"></div></div>
+            <img id="active-pet-img" class="pet-img" src="" onclick="tapPet()">
+            
+            <div style="display:flex; justify-content:space-around; font-size:11px; margin-top:10px;">
+                <div style="width:40%">🍎 Açlık <div class="bar"><div id="h-b" class="prog" style="background:#2ecc71"></div></div></div>
+                <div style="width:40%">⚡ Enerji <div class="bar"><div id="e-b" class="prog" style="background:#3498db"></div></div></div>
+            </div>
+
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:15px;">
+                <button onclick="feed()" style="background:#2ecc71; color:#fff">Yemek</button>
+                <button onclick="slp()" style="background:#9b59b6; color:#fff">Uyu</button>
+                <button onclick="spin()" style="background:#8e44ad; color:#fff">Çark</button>
+                <button onclick="chPet()" class="btn-change">Değiştir 🔄</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="lobby-modal" class="modal">
+        <h2>ARENA LOBİSİ</h2>
+        <button onclick="createRoom()" style="background:#2ecc71; color:#fff; width:200px; margin-bottom:15px;">YENİ ODA KUR</button>
+        <div id="room-list" style="width:100%; max-height:250px; overflow-y:auto;"></div>
+        <button onclick="closeLobby()" style="background:#999; color:#fff; margin-top:20px;">KAPAT</button>
+    </div>
+
+    <div id="arena-modal" class="modal">
+        <h2 id="battle-status" style="color:gold;">RAKİP BEKLENİYOR...</h2>
+        <div style="height: 75vh; display:flex; flex-direction:column; justify-content:space-between; width:100%;">
+            <div id="opp-box">
+                <span id="opp-name" style="font-size:14px; opacity:0.8;">...</span>
+                <div style="width:180px; margin:auto;"><div class="bar"><div id="opp-hp" class="prog" style="background:#e74c3c; width:100%"></div></div></div>
+                <img id="opp-img" src="" style="width:110px; transform: scaleY(-1); opacity:0.3;">
+            </div>
+            <div style="font-size:30px; font-weight:bold; color:rgba(255,255,255,0.2);">BAS BAS BAS!</div>
+            <div id="my-box">
+                <img id="my-img" src="" style="width:110px;">
+                <div style="width:180px; margin:auto;"><div class="bar"><div id="my-hp" class="prog" style="background:#2ecc71; width:100%"></div></div></div>
+                <button id="atk-btn" class="speed-btn" style="display:none;" onclick="sendFastAttack()">VUR!</button>
+            </div>
+        </div>
+        <button onclick="exitArena()" style="position:absolute; top:20px; right:20px; background:#333; color:#fff;">KAÇ</button>
+    </div>
+
+    <script>
+        const config = { databaseURL: "https://tomoyunu-5cd2f-default-rtdb.europe-west1.firebasedatabase.app/" };
+        firebase.initializeApp(config);
+        const db = firebase.database();
+
+        const pets = [{name:'Squeak',img:'Squeak.jpg'},{name:'Flip',img:'Flip.jpg'},{name:'Sugar',img:'Sugar.jpg'},{name:'Dot',img:'Dot.jpg'},{name:'Gus',img:'Gus.jpg'},{name:'Blinky',img:'Blinky.jpg'}];
+        
+        let st = { coins: 100, level: 1, xp: 0, hunger: 80, energy: 100, pet: null, img: null, id: "p"+Math.floor(Math.random()*999) };
+        let curRoom = null, myRole = "";
+
+        // Veriyi Kaydet
+        function save() { 
+            localStorage.setItem('pets_v20', JSON.stringify(st)); 
+            upd(); 
+        }
+
+        // Veriyi Yükle ve Ekranı Kontrol Et
+        function load() { 
+            let s = localStorage.getItem('pets_v20'); 
+            if(s){ 
+                st = JSON.parse(s); 
+                if(st.pet) {
+                    show();
+                } else {
+                    document.getElementById('selection-screen').style.display = 'block';
+                    document.getElementById('game-screen').style.display = 'none';
+                }
+            } else {
+                document.getElementById('selection-screen').style.display = 'block';
+            }
+        }
+
+        function init() {
+            const c = document.getElementById('petContainer');
+            c.innerHTML = ""; // Tekrar yüklemeyi önle
+            pets.forEach(p => c.innerHTML += `<div style="background:#fff; padding:10px; border-radius:15px;"><img src="${p.img}" style="width:100%; border-radius:10px;"><br><b>${p.name}</b><br><button onclick="sel('${p.name}','${p.img}')" style="background:#ff6b6b; color:#fff; width:100%;">Seç</button></div>`);
+            load(); 
+            upd();
+        }
+
+        function sel(n,i){ 
+            st.pet=n; st.img=i; 
+            show(); 
+            save(); 
+        }
+
+        function show(){ 
+            document.getElementById('selection-screen').style.display='none'; 
+            document.getElementById('game-screen').style.display='block'; 
+            document.getElementById('p-n').innerText=st.pet; 
+            document.getElementById('active-pet-img').src=st.img; 
+        }
+
+        function upd(){ 
+            document.getElementById('c-c').innerText=st.coins; 
+            document.getElementById('l-c').innerText=st.level; 
+            document.getElementById('xp-bar').style.width=(st.xp%100)+"%"; 
+            document.getElementById('h-b').style.width=st.hunger+"%"; 
+            document.getElementById('e-b').style.width=st.energy+"%"; 
+        }
+
+        // DEĞİŞTİR TUŞU FONKSİYONU (KESİN ÇÖZÜM)
+        function chPet() { 
+            st.pet = null; 
+            st.img = null;
+            localStorage.setItem('pets_v20', JSON.stringify(st)); 
+            // Direkt sayfa yenileme yaparak temiz başlangıç sağlar
+            window.location.reload(); 
+        }
+
+        // LOBİ VE SAVAŞ
+        function openLobby() {
+            document.getElementById('lobby-modal').style.display='flex';
+            db.ref('rooms').on('value', s => {
+                const list = document.getElementById('room-list');
+                list.innerHTML = "";
+                const rooms = s.val();
+                for(let id in rooms) {
+                    if(rooms[id].status === "waiting") {
+                        list.innerHTML += `<div class="room-item"><span>Oda: ${id}</span><button onclick="joinRoom('${id}')" style="background:#2ecc71; color:#fff">KATIL</button></div>`;
+                    }
+                }
+            });
+        }
+
+        function createRoom() {
+            let rId = Math.floor(1000 + Math.random() * 9000);
+            curRoom = rId; myRole = "p1";
+            db.ref('rooms/' + rId).set({ p1: {n: st.pet, i: st.img, hp: 100}, p2: {n: "Bekleniyor", i: "", hp: 100}, status: "waiting" });
+            startArena();
+        }
+
+        function joinRoom(id) {
+            curRoom = id; myRole = "p2";
+            db.ref('rooms/' + id).update({ p2: {n: st.pet, i: st.img, hp: 100}, status: "playing" });
+            startArena();
+        }
+
+        function startArena() {
+            document.getElementById('lobby-modal').style.display='none';
+            document.getElementById('arena-modal').style.display='flex';
+            db.ref('rooms/' + curRoom).on('value', s => {
+                const d = s.val(); if(!d) return;
+                const me = d[myRole], opp = d[myRole==="p1"?"p2":"p1"];
+                document.getElementById('my-img').src=me.i; document.getElementById('opp-img').src=opp.i;
+                document.getElementById('my-hp').style.width=me.hp+"%"; document.getElementById('opp-hp').style.width=opp.hp+"%";
+                document.getElementById('opp-name').innerText = opp.n;
+                if(d.status === "playing") {
+                    document.getElementById('battle-status').innerText = "HIZLI BASAN KAZANIR!";
+                    document.getElementById('atk-btn').style.display = "block";
+                }
+                if(me.hp <= 0) { alert("Kaybettin!"); endArena(); }
+                if(opp.hp <= 0 && d.status === "playing") { alert("Kazandın! +150💰"); st.coins+=150; endArena(); }
+            });
+        }
+
+        function sendFastAttack() {
+            const target = (myRole==="p1"?"p2":"p1");
+            db.ref('rooms/' + curRoom + '/' + target + '/hp').transaction(hp => Math.max(0, hp - 4));
+            document.getElementById('my-img').classList.add('anim-atk');
+            setTimeout(()=>document.getElementById('my-img').classList.remove('anim-atk'), 100);
+        }
+
+        function endArena() { db.ref('rooms/' + curRoom).remove(); window.location.reload(); }
+        function exitArena() { window.location.reload(); }
+        function closeLobby() { document.getElementById('lobby-modal').style.display='none'; db.ref('rooms').off(); }
+        function feed() { if(st.coins>=20){ st.coins-=20; st.hunger=Math.min(100, st.hunger+30); save(); } }
+        function slp() { st.energy=100; save(); }
+        function spin() { st.coins+=50; save(); }
+        function tapPet() { st.xp+=5; save(); }
+
+        // Oyunu Başlat
+        init();
+    </script>
+</body>
+</html>
