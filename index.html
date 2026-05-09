@@ -3,29 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>The Pets Mansion V57</title>
+    <title>The Pets Mansion V59</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
-        :root { --p: #6c5ce7; --s: #e74c3c; --bg: #f0f2f5; }
+        :root { --p: #6c5ce7; --s: #e74c3c; --bg: #f8f9fa; --health: #ff7675; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; text-align: center; overflow: hidden; background: var(--bg); }
         .screen { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; background: var(--bg); }
-        .game-card { background: white; padding: 20px; border-radius: 30px; width: 85%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .game-card { background: white; padding: 20px; border-radius: 30px; width: 85%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 2px solid #fff; position: relative; }
         
         /* Pet Alanı */
-        .pet-stage { height: 160px; display: flex; justify-content: center; align-items: center; position: relative; background: #fff; border-radius: 20px; border: 2px dashed #ddd; margin: 10px 0; overflow: hidden; }
-        .pet-img { width: 120px; height: 120px; object-fit: contain; z-index: 10; }
-        .img-error-box { position: absolute; font-weight: bold; color: var(--p); font-size: 18px; }
+        .pet-stage { height: 160px; display: flex; justify-content: center; align-items: center; background: #fff; border-radius: 20px; border: 2px dashed #ddd; margin: 10px 0; position: relative; }
+        .pet-img { width: 120px; height: 120px; object-fit: contain; z-index: 10; transition: 0.3s; }
+        .dead { filter: grayscale(1) opacity(0.5); transform: rotate(180deg); }
 
-        /* Barlar */
+        /* İstatistikler (Yüksek = İyi) */
         .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 11px; font-weight: bold; margin-bottom: 10px; }
         .bar { background: #eee; height: 10px; border-radius: 5px; overflow: hidden; border: 1px solid #ddd; }
-        .prog { height: 100%; width: 100%; transition: 0.3s; }
+        .prog { height: 100%; transition: 0.3s; }
 
-        /* Odalar */
+        /* Odalar ve Butonlar */
         .room-panel { display: none; height: 80px; align-items: center; justify-content: center; gap: 10px; }
         .active-panel { display: flex !important; }
         .btn-act { font-size: 25px; padding: 10px 20px; border-radius: 15px; border: 1px solid #eee; background: white; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        
+        .change-btn { position: absolute; top: 10px; right: 10px; background: #eee; border: none; padding: 5px 10px; border-radius: 10px; font-size: 10px; font-weight: bold; cursor: pointer; }
 
         /* Navigasyon */
         .nav-bar { position: fixed; bottom: 0; width: 100%; background: #fff; display: flex; justify-content: space-around; padding: 12px 0; border-top: 2px solid #eee; }
@@ -36,7 +38,7 @@
         /* Arena */
         #arena-screen { display: none; position: fixed; inset: 0; background: #1e272e; z-index: 2000; color: white; }
         .fighter { width: 100px; position: relative; transition: 0.1s; }
-        .hp-box { width: 80px; height: 10px; background: #333; border: 1px solid white; position: absolute; top: -20px; left: 10px; border-radius: 5px; overflow: hidden; }
+        .hp-box { width: 80px; height: 10px; background: #333; border: 1px solid white; position: absolute; top: -20px; left: 10px; border-radius: 5px; }
         .jump { transform: translateY(-70px); }
         input { padding: 12px; border-radius: 12px; border: 1px solid #ddd; width: 80%; text-align: center; }
     </style>
@@ -45,15 +47,15 @@
 
     <div id="login-screen" class="screen">
         <div class="game-card">
-            <h1 style="color:var(--p)">The Pets V57</h1>
-            <input type="text" id="name-in" placeholder="Kendi Adın">
-            <button onclick="saveName()" style="background:var(--p); color:white; border:none; padding:15px; width:88%; border-radius:15px; font-weight:bold; margin-top:10px;">GİRİŞ YAP</button>
+            <h1 style="color:var(--p)">The Pets V59</h1>
+            <input type="text" id="name-in" placeholder="İsmini Yaz">
+            <button onclick="saveName()" style="background:var(--p); color:white; border:none; padding:15px; width:88%; border-radius:15px; font-weight:bold; margin-top:10px;">GİRİŞ</button>
         </div>
     </div>
 
     <div id="select-screen" class="screen" style="display:none;">
         <div class="game-card">
-            <h2>Karakterini Seç</h2>
+            <h2>Karakter Seç</h2>
             <div id="pet-list" style="display:grid; grid-template-columns: 1fr 1fr; gap: 15px;"></div>
         </div>
     </div>
@@ -65,35 +67,37 @@
         </div>
 
         <div class="game-card" style="margin-top: 80px;">
+            <button class="change-btn" onclick="changePet()">🔄 DEĞİŞTİR</button>
+            
             <div class="stats-grid">
-                <div>🍔 Açlık <div class="bar"><div id="h-bar" class="prog" style="background:#2ecc71;"></div></div></div>
-                <div>🚽 Tuvalet <div class="bar"><div id="t-bar" class="prog" style="background:#9b59b6;"></div></div></div>
-                <div>😴 Uyku <div class="bar"><div id="s-bar" class="prog" style="background:#3498db;"></div></div></div>
-                <div>🎮 Oyun <div class="bar"><div id="p-bar" class="prog" style="background:#f1c40f;"></div></div></div>
+                <div style="grid-column: 1 / span 2; color:var(--health)">❤️ Sağlık/Hastalık <div class="bar"><div id="hth-bar" class="prog" style="background:var(--health); width:100%;"></div></div></div>
+                <div>🍔 Tokluk <div class="bar"><div id="h-bar" class="prog" style="background:#2ecc71;"></div></div></div>
+                <div>🧼 Temizlik <div class="bar"><div id="t-bar" class="prog" style="background:#9b59b6;"></div></div></div>
+                <div>😴 Enerji <div class="bar"><div id="s-bar" class="prog" style="background:#3498db;"></div></div></div>
+                <div>🎮 Mutluluk <div class="bar"><div id="p-bar" class="prog" style="background:#f1c40f;"></div></div></div>
             </div>
             
             <div class="pet-stage">
-                <div id="img-err" class="img-error-box">...</div>
-                <img id="main-pet-img" class="pet-img" src="" onerror="imgFailed(this)">
+                <img id="main-pet-img" class="pet-img" src="">
+                <div id="status-msg" style="position:absolute; top:5px; font-size:10px; font-weight:bold;"></div>
             </div>
 
             <div id="kitchen-panel" class="room-panel active-panel">
-                <button class="btn-act" onclick="eat(25)">🍕</button>
-                <button class="btn-act" onclick="eat(40)">🍔</button>
-                <button class="btn-act" onclick="eat(15)">🍩</button>
+                <button class="btn-act" onclick="feed(20)">🍎</button>
+                <button class="btn-act" onclick="feed(40)">🍔</button>
             </div>
             <div id="bath-panel" class="room-panel">
-                <button class="btn-act" onclick="clean()" style="background:#9b59b6; color:white; font-size:14px; padding: 15px 30px;">🚽 TEMİZLEN</button>
+                <button class="btn-act" onclick="wash()" style="background:#9b59b6; color:white; font-size:14px;">YIKAN 🧼</button>
             </div>
             <div id="bedroom-panel" class="room-panel">
-                <button class="btn-act" id="sleep-btn" onclick="toggleSleep()" style="background:var(--p); color:white; font-size:14px; padding: 15px 30px;">😴 UYUT</button>
+                <button class="btn-act" id="sleep-btn" onclick="toggleSleep()" style="background:#3498db; color:white; font-size:14px;">UYU 😴</button>
             </div>
             <div id="office-panel" class="room-panel">
-                <button class="btn-act" onclick="work()" style="background:#2d3436; color:white; font-size:14px; padding: 15px 30px;">💻 KOD YAZ (+30💰)</button>
+                <button class="btn-act" onclick="work()" style="background:#2d3436; color:white; font-size:14px;">ÇALIŞ (+40💰)</button>
             </div>
             <div id="garden-panel" class="room-panel">
-                <input type="number" id="room-id-input" placeholder="Savaş Kodu">
-                <button onclick="enterArena()" style="background:var(--s); color:white; border:none; padding:12px; border-radius:12px; font-weight:bold; margin-top:5px;">SAVAŞA GİR ⚔️</button>
+                <input type="number" id="room-id-input" placeholder="Oda Kodu">
+                <button onclick="enterArena()" style="background:var(--s); color:white; border:none; padding:10px; border-radius:12px; font-weight:bold; margin-top:5px;">SAVAŞ ⚔️</button>
             </div>
         </div>
 
@@ -107,21 +111,21 @@
     </div>
 
     <div id="arena-screen">
-        <div style="padding:15px; display:flex; justify-content: space-between; align-items: center;">
-            <button onclick="exitArena()" style="background:var(--s); color:white; border:none; padding:8px 15px; border-radius:8px; font-weight:bold;">KAÇ!</button>
-            <div id="arena-info" style="font-weight:bold;">Oda: -</div>
+        <div style="padding:15px; display:flex; justify-content: space-between;">
+            <button onclick="exitArena()" style="background:var(--s); color:white; border:none; padding:8px 15px; border-radius:8px;">ÇIK</button>
+            <div id="arena-info">Oda: -</div>
         </div>
         <div style="height:50%; display:flex; justify-content:space-around; align-items:flex-end; padding-bottom:40px;">
             <div id="p1" class="fighter">
                 <div class="hp-box"><div id="p1-hp" style="height:100%; background:#2ecc71; width:100%;"></div></div>
-                <img id="p1-img" src="" style="width:100%" onerror="this.style.opacity='0.2'">
+                <img id="p1-img" src="" style="width:100%">
             </div>
             <div id="p2" class="fighter">
                 <div class="hp-box"><div id="p2-hp" style="height:100%; background:#2ecc71; width:100%;"></div></div>
-                <img id="p2-img" src="" style="width:100%" onerror="this.style.opacity='0.2'">
+                <img id="p2-img" src="" style="width:100%">
             </div>
         </div>
-        <button onclick="arenaHit()" style="width:120px; height:120px; background:var(--s); border-radius:50%; color:white; font-weight:bold; border:5px solid white; box-shadow: 0 0 20px rgba(231, 76, 60, 0.4);">VUR!</button>
+        <button onclick="arenaHit()" style="width:110px; height:110px; background:var(--s); border-radius:50%; color:white; font-weight:bold; border:4px solid white;">VUR!</button>
     </div>
 
     <script>
@@ -129,52 +133,91 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // GITHUB LINKIN BURASI (Ekran görüntünden aldım)
         const raw = "https://raw.githubusercontent.com/darwin456222-ops/Darwiizl/main/";
-
         const pets = [
-            {n:'squeak', i: raw + 'squeak.jpg'}, 
-            {n:'flip', i: raw + 'flip.jpg'}, 
-            {n:'sugar', i: raw + 'sugar.jpg'}, 
-            {n:'dot', i: raw + 'dot.jpg'}, 
-            {n:'gus', i: raw + 'gus.jpg'}, 
-            {n:'blinky', i: raw + 'blinky.jpg'}
+            {n:'squeak', i: raw + 'squeak.jpg'}, {n:'flip', i: raw + 'flip.jpg'}, 
+            {n:'sugar', i: raw + 'sugar.jpg'}, {n:'dot', i: raw + 'dot.jpg'}, 
+            {n:'gus', i: raw + 'gus.jpg'}, {n:'blinky', i: raw + 'blinky.jpg'}
         ];
 
-        let st = { name:"", coins:100, pet:null, img:null, lvl:1, hunger:60, toilet:0, sleep:0, play:0, isSleeping: false };
+        // Başlangıç değerleri (YÜKSEK = İYİ)
+        let st = { name:"", coins:100, pet:null, img:null, lvl:1, hunger:100, clean:100, energy:100, happy:100, health:100, isSleeping: false };
         let currentRoom = null; let mySlot = "";
 
         function init() {
             const list = document.getElementById('pet-list');
+            list.innerHTML = "";
             pets.forEach(p => { 
-                list.innerHTML += `<div onclick="selectPet('${p.n}','${p.i}')" style="background:#f9f9f9; padding:10px; border-radius:15px; border:1px solid #eee; text-align:center;">
+                list.innerHTML += `<div onclick="selectPet('${p.n}','${p.i}')" style="background:#fff; padding:10px; border-radius:15px; border:1px solid #eee; cursor:pointer;">
                     <img src="${p.i}" style="width:100%; height:50px; object-fit:contain;" onerror="this.src='https://via.placeholder.com/50?text=PET'">
-                    <b style="font-size:12px; text-transform:capitalize;">${p.n}</b>
+                    <br><b style="text-transform:capitalize; font-size:12px;">${p.n}</b>
                 </div>`; 
             });
-            let saved = localStorage.getItem('pets_v57');
+            let saved = localStorage.getItem('pets_v59');
             if(saved) { st = JSON.parse(saved); if(st.name && st.pet) { document.getElementById('login-screen').style.display = 'none'; showGame(); } }
         }
 
         function saveName() { let v = document.getElementById('name-in').value; if(v.trim()){ st.name=v; document.getElementById('login-screen').style.display='none'; document.getElementById('select-screen').style.display='flex'; } }
         function selectPet(n, i) { st.pet=n; st.img=i; document.getElementById('select-screen').style.display='none'; showGame(); }
-        function showGame() { 
-            document.getElementById('game-screen').style.display = 'block'; 
-            document.getElementById('main-pet-img').src = st.img; 
-            document.getElementById('img-err').innerText = st.pet.toUpperCase();
-            update(); 
-        }
+        function changePet() { document.getElementById('game-screen').style.display='none'; document.getElementById('select-screen').style.display='flex'; }
 
-        function imgFailed(img) { img.style.display = 'none'; document.getElementById('img-err').style.display = 'block'; }
+        function showGame() { document.getElementById('game-screen').style.display = 'block'; document.getElementById('main-pet-img').src = st.img; update(); }
 
         function update() {
-            document.getElementById('gold-txt').innerText = st.coins;
+            // Değerleri 0 ile 100 arasında tut
+            st.hunger = Math.max(0, Math.min(100, st.hunger));
+            st.clean = Math.max(0, Math.min(100, st.clean));
+            st.energy = Math.max(0, Math.min(100, st.energy));
+            st.happy = Math.max(0, Math.min(100, st.happy));
+
+            // SAĞLIK HESABI: Diğer barlar düşükse sağlık azalır
+            let penalty = 0;
+            if(st.hunger < 20) penalty += 0.5;
+            if(st.clean < 20) penalty += 0.5;
+            if(st.energy < 10) penalty += 0.5;
+            st.health = Math.max(0, Math.min(100, st.health - penalty + (st.health < 100 && penalty == 0 ? 0.1 : 0)));
+
+            document.getElementById('gold-txt').innerText = Math.floor(st.coins);
             document.getElementById('lvl-txt').innerText = st.lvl;
             document.getElementById('h-bar').style.width = st.hunger + "%";
-            document.getElementById('t-bar').style.width = st.toilet + "%";
-            document.getElementById('s-bar').style.width = st.sleep + "%";
-            document.getElementById('p-bar').style.width = st.play + "%";
-            localStorage.setItem('pets_v57', JSON.stringify(st));
+            document.getElementById('t-bar').style.width = st.clean + "%";
+            document.getElementById('s-bar').style.width = st.energy + "%";
+            document.getElementById('p-bar').style.width = st.happy + "%";
+            document.getElementById('hth-bar').style.width = st.health + "%";
+
+            if(st.health <= 0) {
+                document.getElementById('main-pet-img').classList.add('dead');
+                document.getElementById('status-msg').innerText = "PET HASTALANDI! BAKIM YAP!";
+                document.getElementById('status-msg').style.color = "red";
+            } else {
+                document.getElementById('main-pet-img').classList.remove('dead');
+                document.getElementById('status-msg').innerText = "";
+            }
+
+            localStorage.setItem('pets_v59', JSON.stringify(st));
+        }
+
+        // Zamanla barların azalması
+        setInterval(() => {
+            if(!st.isSleeping) {
+                st.hunger -= 0.2;
+                st.clean -= 0.15;
+                st.energy -= 0.1;
+                st.happy -= 0.2;
+            } else {
+                st.energy += 0.8;
+                st.hunger -= 0.05;
+            }
+            update();
+        }, 3000);
+
+        function feed(v) { if(st.isSleeping) return; st.hunger += v; st.health += 2; update(); }
+        function wash() { st.clean = 100; st.health += 5; st.coins += 5; update(); }
+        function work() { if(st.energy < 20) return alert("Çok yorgun!"); st.energy -= 20; st.coins += 40; update(); }
+        function toggleSleep() { 
+            st.isSleeping = !st.isSleeping; 
+            document.getElementById('main-pet-img').style.opacity = st.isSleeping ? "0.4" : "1";
+            document.getElementById('sleep-btn').innerText = st.isSleeping ? "UYANDIR" : "UYUT";
         }
 
         function goRoom(r, b) {
@@ -184,29 +227,17 @@
             b.classList.add('active');
         }
 
-        function eat(h) { if(st.isSleeping) return; st.hunger = Math.min(100, st.hunger + h); st.coins += 2; update(); }
-        function clean() { st.toilet = 0; st.coins += 10; update(); }
-        function work() { st.coins += 30; update(); }
-        function toggleSleep() { 
-            st.isSleeping = !st.isSleeping; 
-            document.getElementById('main-pet-img').style.transform = st.isSleeping ? "rotate(90deg) scale(0.8)" : "none"; 
-            document.getElementById('sleep-btn').innerText = st.isSleeping ? "UYANDIR" : "UYUT"; 
-            document.getElementById('sleep-btn').style.background = st.isSleeping ? "#f1c40f" : "#6c5ce7";
-        }
-
         function enterArena() {
             let rid = document.getElementById('room-id-input').value; if(!rid) return;
             currentRoom = db.ref("rooms/" + rid);
             document.getElementById('arena-screen').style.display = 'block';
             currentRoom.once('value', (s) => {
                 let d = s.val() || {}; mySlot = (!d.p1) ? "p1" : "p2";
-                currentRoom.child(mySlot).set({ name: st.name, img: st.img, hp: 100, jump: false });
+                currentRoom.child(mySlot).set({ name: st.name, img: st.img, hp: 100 });
                 currentRoom.on('value', (snap) => {
                     let data = snap.val(); if(!data) return;
-                    if(data.p1) { document.getElementById('p1-img').src = data.p1.img; document.getElementById('p1-hp').style.width = data.p1.hp + "%"; if(data.p1.jump) document.getElementById('p1').classList.add('jump'); else document.getElementById('p1').classList.remove('jump'); }
-                    if(data.p2) { document.getElementById('p2-img').src = data.p2.img; document.getElementById('p2-hp').style.width = data.p2.hp + "%"; if(data.p2.jump) document.getElementById('p2').classList.add('jump'); else document.getElementById('p2').classList.remove('jump'); }
-                    if(data.p1 && data.p1.hp <= 0) alert("MAÇ BİTTİ! KAZANAN: " + data.p2.name);
-                    if(data.p2 && data.p2.hp <= 0) alert("MAÇ BİTTİ! KAZANAN: " + data.p1.name);
+                    if(data.p1) { document.getElementById('p1-img').src = data.p1.img; document.getElementById('p1-hp').style.width = data.p1.hp + "%"; }
+                    if(data.p2) { document.getElementById('p2-img').src = data.p2.img; document.getElementById('p2-hp').style.width = data.p2.hp + "%"; }
                 });
             });
         }
@@ -215,10 +246,11 @@
             let target = (mySlot === "p1") ? "p2" : "p1";
             currentRoom.child(mySlot).update({ jump: true });
             setTimeout(() => currentRoom.child(mySlot).update({ jump: false }), 150);
-            currentRoom.child(target).once('value', (s) => { if(s.exists()) currentRoom.child(target).update({ hp: Math.max(0, s.val().hp - 5) }); });
+            currentRoom.child(target).once('value', (s) => { if(s.exists()) currentRoom.child(target).update({ hp: Math.max(0, s.val().hp - 10) }); });
         }
 
         function exitArena() { if(mySlot && currentRoom) currentRoom.child(mySlot).remove(); currentRoom.off(); document.getElementById('arena-screen').style.display='none'; }
+        
         init();
     </script>
 </body>
