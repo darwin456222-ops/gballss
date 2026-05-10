@@ -3,226 +3,284 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>The Pets Mansion V85.9 - Arena Online</title>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <title>The Pets Mansion V100</title>
     <style>
-        :root { --p: #6c5ce7; --bg: #f8f9fa; --health: #ff7675; --energy: #3498db; --hunger: #2ecc71; --fun: #f1c40f; --clean: #00cec9; }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; text-align: center; overflow: hidden; background: var(--bg); user-select: none; touch-action: manipulation; transition: 0.3s; }
+        :root { --p: #6c5ce7; --bg: #f0f2f5; --hunger: #2ecc71; --clean: #00cec9; --sleep: #3498db; --fun: #f1c40f; --health: #ff7675; --garden: #e67e22; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); user-select: none; touch-action: manipulation; overflow: hidden; }
         
-        .t-purple { --p: #6c5ce7; } .t-blue { --p: #0984e3; } .t-green { --p: #00b894; } .t-orange { --p: #e17055; } .t-pink { --p: #fd79a8; }
+        /* ÜST PANEL */
+        .top-bar { position: fixed; top: 10px; width: 100%; display: flex; justify-content: space-around; z-index: 1000; }
+        .stat { background: white; padding: 5px 15px; border-radius: 15px; font-weight: 900; box-shadow: 0 4px 10px rgba(0,0,0,0.1); font-size: 14px; }
 
-        .overlay { display: none; position: fixed; inset: 0; background: white; z-index: 20000; flex-direction: column; align-items: center; justify-content: center; }
-        .overlay.show { display: flex; }
-
-        .top-bar { position: fixed; top: 10px; width: 100%; display: flex; justify-content: center; gap: 5px; z-index: 5000; }
-        .stat-box { background: white; padding: 8px 12px; border-radius: 12px; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.1); border: none; font-size: 11px; }
-
-        .game-card { background: white; padding: 15px; border-radius: 30px; width: 88%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); margin: 60px auto 5px; position: relative; min-height: 500px; z-index: 100; display: flex; flex-direction: column; }
+        /* OYUN KARTI */
+        .game-card { background: white; width: 90%; max-width: 400px; height: 80vh; margin: 60px auto; border-radius: 40px; box-shadow: 0 20px 50px rgba(0,0,0,0.1); display: flex; flex-direction: column; overflow: hidden; position: relative; }
         
-        .bars { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 9px; font-weight: 800; margin-bottom: 10px; text-align: left; }
-        .bar { background: #eee; height: 8px; border-radius: 4px; overflow: hidden; margin-top: 2px; }
-        .fill { height: 100%; width: 100%; transition: 0.4s; }
+        /* 6 BAR SİSTEMİ */
+        .bars-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 15px; background: #fafafa; }
+        .bar-wrap { font-size: 9px; font-weight: 900; }
+        .bar-bg { background: #eee; height: 8px; border-radius: 4px; margin-top: 3px; overflow: hidden; }
+        .bar-fill { height: 100%; width: 50%; transition: 0.5s; }
 
-        .stage { height: 120px; display: flex; justify-content: center; align-items: center; position: relative; }
-        .pet { width: 90px; z-index: 105; transition: 0.1s; cursor: pointer; }
-        .pet:active { transform: scale(1.1); }
-
-        .panel { display: none; flex-direction: column; gap: 8px; flex: 1; overflow-y: auto; padding-bottom: 60px; }
-        .active { display: flex !important; }
+        /* ODA İÇERİKLERİ */
+        .room { display: none; flex: 1; flex-direction: column; align-items: center; padding: 20px; overflow-y: auto; }
+        .active-room { display: flex; }
         
-        .btn { background: #fdfdfd; border: 2px solid #f0f0f0; padding: 14px; border-radius: 15px; cursor: pointer; font-weight: bold; width: 100%; font-size: 14px; color: #333; }
-        .btn:active { background: #eee; transform: scale(0.98); }
+        /* PET VE MİNİ PET GÖRSELİ */
+        .stage { position: relative; height: 150px; width: 100%; display: flex; justify-content: center; align-items: center; margin-top: 10px; }
+        .main-pet { width: 110px; z-index: 2; transition: 0.3s; }
+        .mini-pet-follow { width: 45px; position: absolute; bottom: 10px; right: 25%; z-index: 3; filter: drop-shadow(0 2px 5px rgba(0,0,0,0.2)); }
 
-        .garden-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 5px; }
-        .plot { background: #d2b48c; height: 55px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; border: 2px solid #bc8f8f; }
+        /* BUTONLAR */
+        .btn { border: none; padding: 12px 20px; border-radius: 15px; color: white; font-weight: 900; cursor: pointer; margin: 5px; box-shadow: 0 4px 0 rgba(0,0,0,0.2); width: 80%; }
+        .btn:active { transform: translateY(2px); box-shadow: none; }
 
-        #balloon-area { width: 100%; height: 180px; background: #a29bfe; position: relative; overflow: hidden; border-radius: 15px; display: none; margin-top: 5px; border: 3px solid white; }
-        .balloon { width: 30px; height: 40px; border-radius: 50%; position: absolute; bottom: -50px; cursor: pointer; animation: fly 3s linear forwards; }
-        @keyframes fly { to { bottom: 250px; } }
+        /* BALON OYUNU */
+        #game-canvas { background: #87ceeb; width: 100%; height: 250px; border-radius: 20px; position: relative; overflow: hidden; display: none; }
+        .balloon { position: absolute; width: 40px; height: 50px; border-radius: 50%; cursor: pointer; animation: floatUp 3s linear forwards; }
+        @keyframes floatUp { from { bottom: -50px; } to { bottom: 300px; } }
 
-        .nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #eee; z-index: 10000; }
-        .n-btn { background: none; border: none; flex: 1; font-size: 20px; cursor: pointer; opacity: 0.3; transition: 0.2s; }
-        .n-btn.on { opacity: 1; color: var(--p); transform: translateY(-3px); }
+        /* NAVİGASYON */
+        .nav { height: 65px; display: flex; justify-content: space-around; align-items: center; background: white; border-top: 1px solid #eee; }
+        .nav-btn { font-size: 24px; cursor: pointer; opacity: 0.3; transition: 0.3s; background: none; border: none; }
+        .nav-btn.on { opacity: 1; color: var(--p); transform: scale(1.2); }
 
-        input { padding: 15px; border-radius: 12px; border: 2px solid var(--p); width: 80%; font-size: 16px; margin: 10px 0; text-align: center; }
+        /* SELECTOR */
+        #selector { position: fixed; inset: 0; background: white; z-index: 5000; display: none; flex-direction: column; align-items: center; padding: 20px; }
+        .grid6 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
     </style>
 </head>
-<body class="t-purple">
+<body>
 
-    <div id="select-screen" class="overlay show">
-        <h2>Karakterini Seç</h2>
-        <div id="p-list" style="display:grid; grid-template-columns:repeat(3,1fr); gap:10px; width:90%;"></div>
+    <div id="selector">
+        <h2>Evcil Hayvanını Seç</h2>
+        <div class="grid6" id="pet-select-grid"></div>
     </div>
 
-    <div id="game-ui" style="display:none;">
-        <div class="top-bar">
-            <div class="stat-box">💰 <span id="gold">0</span></div>
-            <button class="stat-box" onclick="toggleTheme()" style="background:var(--p); color:white;">🎨 Tema</button>
-            <button class="stat-box" onclick="location.reload()">🔄</button>
+    <div class="top-bar">
+        <div class="stat">💰 <span id="gold">100</span></div>
+        <div class="stat">✨ <span id="xp">0</span></div>
+        <button class="stat" onclick="document.getElementById('selector').style.display='flex'">🔄 Değiştir</button>
+    </div>
+
+    <div class="game-card">
+        <div class="bars-grid">
+            <div class="bar-wrap">🍔 AÇLIK <div class="bar-bg"><div id="fill-hng" class="bar-fill" style="background:var(--hunger)"></div></div></div>
+            <div class="bar-wrap">🧼 TEMİZLİK <div class="bar-bg"><div id="fill-cln" class="bar-fill" style="background:var(--clean)"></div></div></div>
+            <div class="bar-wrap">😴 UYKU <div class="bar-bg"><div id="fill-slp" class="bar-fill" style="background:var(--sleep)"></div></div></div>
+            <div class="bar-wrap">🎮 EĞLENCE <div class="bar-bg"><div id="fill-fun" class="bar-fill" style="background:var(--fun)"></div></div></div>
+            <div class="bar-wrap">❤️ SAĞLIK <div class="bar-bg"><div id="fill-hth" class="bar-fill" style="background:var(--health)"></div></div></div>
+            <div class="bar-wrap">🌳 BAHÇE <div class="bar-bg"><div id="fill-gar" class="bar-fill" style="background:var(--garden)"></div></div></div>
         </div>
 
-        <div class="game-card">
-            <div class="bars">
-                <div>❤️ SAĞLIK <div class="bar"><div id="b-hth" class="fill" style="background:var(--health)"></div></div></div>
-                <div>🍔 AÇLIK <div class="bar"><div id="b-hng" class="fill" style="background:var(--hunger)"></div></div></div>
-                <div>🚿 TEMİZLİK <div class="bar"><div id="b-cln" class="fill" style="background:var(--clean)"></div></div></div>
-                <div>😴 ENERJİ <div class="bar"><div id="b-enr" class="fill" style="background:var(--energy)"></div></div></div>
-                <div style="grid-column: span 2;">🎮 EĞLENCE <div class="bar"><div id="b-fun" class="fill" style="background:var(--fun)"></div></div></div>
-            </div>
+        <div class="stage">
+            <img id="pet-img" class="main-pet" src="">
+            <img id="mini-img" class="mini-pet-follow" src="" style="display:none;">
+        </div>
 
-            <div class="stage">
-                <img id="main-p" class="pet" onclick="st.gold++; st.fun=Math.min(100,st.fun+0.5); render()">
-            </div>
+        <div id="room-kitchen" class="room active-room">
+            <h3>🍴 MUTFAK</h3>
+            <div id="fridge-ui" style="font-size:12px; margin-bottom:10px;">Buzdolabı: Elma(0), Havuç(0), Çilek(0)</div>
+            <button class="btn" style="background:#e74c3c" onclick="buyPizza()">🍕 PİZZA AL (15💰)</button>
+            <button class="btn" style="background:#3498db" onclick="takeMeds()">💊 İLAÇ İÇ (10💰)</button>
+            <button class="btn" style="background:#2ecc71" onclick="eatFromFridge()">🥫 BUZDOLABINDAN YE</button>
+        </div>
 
-            <div id="kitchen" class="panel active">
-                <h3>🍴 MUTFAK</h3>
-                <button class="btn" onclick="buyFood()">🍕 Pizza Al (15💰)</button>
-                <button class="btn" onclick="eatFood()">🍴 Yemek Ye (Dolap: <span id="f-count">0</span>)</button>
-            </div>
+        <div id="room-garden" class="room">
+            <h3>🌳 BAHÇE</h3>
+            <button class="btn" style="background:#f1c40f" onclick="spinSeed()">🎡 TOHUM ÇARKINI ÇEVİR</button>
+            <div id="garden-plot" style="margin-top:10px;">Tohum bekleniyor...</div>
+        </div>
 
-            <div id="bath" class="panel">
-                <h3>🚿 BANYO</h3>
-                <button class="btn" style="background:var(--clean); color:white; padding:15px;" onclick="st.cln=100; render()">🧼 SABUNLA YIKAN</button>
-            </div>
+        <div id="room-bedroom" class="room">
+            <h3>😴 YATAK ODASI</h3>
+            <div id="sleep-timer"></div>
+            <button class="btn" style="background:#3498db" onclick="startSleep()">🛌 10 SN UYU</button>
+        </div>
 
-            <div id="sleep" class="panel">
-                <h3>🛌 YATAK ODASI</h3>
-                <button class="btn" style="background:var(--energy); color:white; padding:15px;" onclick="st.enr=100; render()">😴 UYU VE DİNLEN</button>
-            </div>
+        <div id="room-bathroom" class="room">
+            <h3>🧼 BANYO</h3>
+            <button class="btn" style="background:#00cec9" onclick="wash()">🧼 YIKAN</button>
+        </div>
 
-            <div id="garden" class="panel">
-                <h3>🌳 BAHÇE</h3>
-                <div class="garden-grid" id="g-grid"></div>
-                <p><small>Toprağa tıkla, 20sn sonra elmayı topla!</small></p>
-            </div>
+        <div id="room-play" class="room">
+            <h3>🎮 OYUN ODASI</h3>
+            <button id="start-game-btn" class="btn" style="background:#f1c40f" onclick="startBalloons()">🎈 BALON PATLATMA</button>
+            <div id="game-canvas"></div>
+        </div>
 
-            <div id="lab" class="panel">
-                <h3>🧬 LABORATUVAR</h3>
-                <h2 id="h-timer">Kuluçka Boş</h2>
-                <button class="btn" onclick="startHatch()">🥚 Yumurta Al (100💰)</button>
-            </div>
-
-            <div id="city" class="panel">
-                <h3>🏙️ ŞEHİR</h3>
-                <button id="start-balloon" class="btn" onclick="startBalloonGame()" style="background:var(--fun); color:white;">🎈 Balon Patlatma Oyna</button>
-                <div id="balloon-area"></div>
-                <button class="btn" style="margin-top:10px; background:#ff4757; color:white;" onclick="openArenaMenu()">⚔️ ARENA (ODA KUR)</button>
-            </div>
+        <div id="room-lab" class="room">
+            <h3>🧬 LABORATUVAR</h3>
+            <button class="btn" style="background:#6c5ce7" onclick="openEgg()">🥚 YUMURTA AÇ (50💰)</button>
+            <div id="mini-index" style="font-size:10px; margin-top:10px; display:grid; grid-template-columns:repeat(3,1fr); gap:5px;"></div>
         </div>
 
         <div class="nav">
-            <button class="n-btn on" onclick="room('kitchen', this)">🍴</button>
-            <button class="n-btn" onclick="room('bath', this)">🚿</button>
-            <button class="n-btn" onclick="room('sleep', this)">🛌</button>
-            <button class="n-btn" onclick="room('garden', this)">🌳</button>
-            <button class="n-btn" onclick="room('lab', this)">🧬</button>
-            <button class="n-btn" onclick="room('city', this)">🏙️</button>
+            <button class="nav-btn on" onclick="changeRoom('kitchen', this)">🍴</button>
+            <button class="nav-btn" onclick="changeRoom('garden', this)">🌳</button>
+            <button class="nav-btn" onclick="changeRoom('bedroom', this)">😴</button>
+            <button class="nav-btn" onclick="changeRoom('bathroom', this)">🧼</button>
+            <button class="nav-btn" onclick="changeRoom('play', this)">🎮</button>
+            <button class="nav-btn" onclick="changeRoom('lab', this)">🧬</button>
         </div>
     </div>
 
-    <div id="arena-modal" class="overlay" style="background:#1a1a2e; color:white;">
-        <h2>ARENA LOBİ</h2>
-        <p>Bir oda kodu belirle:</p>
-        <input type="text" id="room-code" placeholder="Örn: 5566">
-        <button class="btn" style="background:var(--p); color:white; width:80%;" onclick="joinRoom()">ODAYA BAĞLAN</button>
-        <button class="btn" style="margin-top:20px; width:40%;" onclick="closeOverlays()">KAPAT</button>
-    </div>
-
     <script>
-        const firebaseConfig = { databaseURL: "https://tomoyunu-5cd2f-default-rtdb.europe-west1.firebasedatabase.app" };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-        
         const raw = "https://raw.githubusercontent.com/darwin456222-ops/Darwiizl/main/";
-        const chars = [{n:'Squeak', i:raw+'squeak.jpg'}, {n:'Flip', i:raw+'flip.jpg'}, {n:'Sugar', i:raw+'sugar.jpg'}, {n:'Dot', i:raw+'dot.jpg'}, {n:'Gus', i:raw+'gus.jpg'}, {n:'Blinky', i:raw+'blinky.jpg'}];
-        const themes = ['t-purple', 't-blue', 't-green', 't-orange', 't-pink'];
+        const pets = ["squeak.jpg", "flip.jpg", "sugar.jpg", "gus.jpg", "dot.jpg", "blinky.jpg"];
+        const miniPets = ["browny.jpg", "pinky.jpg", "sunny.jpg", "sleapy.jpg", "dinory.jpg", "stary.jpg"];
         
-        let st = { gold: 200, petImg: "", hth: 100, hng: 100, cln: 100, enr: 100, fun: 100, fridge: 0, garden: [null,null,null], themeIdx: 0, hatchEnd: 0 };
+        let state = {
+            gold: 100, xp: 0,
+            pet: "blinky.jpg",
+            activeMini: null,
+            ownedMinis: [],
+            fridge: { elma: 0, havuç: 0, çilek: 0 },
+            bars: { hng: 50, cln: 50, slp: 50, fun: 50, hth: 50, gar: 50 }
+        };
 
-        function init() {
-            const list = document.getElementById('p-list');
-            chars.forEach(p => {
-                list.innerHTML += `<div class="btn" onclick="selectPet('${p.i}')"><img src="${p.i}" style="width:100%; border-radius:10px;"><br><small>${p.n}</small></div>`;
-            });
+        // BAR DÖNGÜSÜ MANTIĞI
+        function updateBars(type, amount) {
+            state.bars[type] = Math.min(100, state.bars[type] + amount);
+            
+            // Eğer bir bar dolarsa (100 olursa) diğerini azalt
+            if(state.bars[type] >= 100) {
+                if(type === 'hng') state.bars.cln = Math.max(0, state.bars.cln - 20);
+                if(type === 'cln') state.bars.slp = Math.max(0, state.bars.slp - 20);
+                if(type === 'slp') state.bars.fun = Math.max(0, state.bars.fun - 10), state.bars.hth = Math.max(0, state.bars.hth - 10);
+                if(type === 'hth') state.bars.gar = Math.max(0, state.bars.gar - 20);
+                if(type === 'gar') state.bars.hng = Math.max(0, state.bars.hng - 20);
+            }
             render();
-            setInterval(() => {
-                st.hng = Math.max(0, st.hng - 0.2); st.cln = Math.max(0, st.cln - 0.1);
-                st.enr = Math.max(0, st.enr - 0.1); st.fun = Math.max(0, st.fun - 0.2);
-                if(st.hatchEnd > 0) checkHatch();
-                render();
-            }, 3000);
-        }
-
-        function toggleTheme() { st.themeIdx = (st.themeIdx + 1) % themes.length; document.body.className = themes[st.themeIdx]; }
-        function selectPet(img) { st.petImg = img; document.getElementById('select-screen').classList.remove('show'); document.getElementById('game-ui').style.display='block'; render(); }
-        function openArenaMenu() { document.getElementById('arena-modal').classList.add('show'); }
-        function closeOverlays() { document.querySelectorAll('.overlay').forEach(o => o.classList.remove('show')); }
-
-        function joinRoom() {
-            const code = document.getElementById('room-code').value;
-            if(!code) return;
-            db.ref('rooms/' + code).push({ player: st.petImg, time: Date.now() });
-            alert(code + " odasına girildi! Arkadaşın da bu kodla girerse Firebase'de eşleşirsiniz.");
-            closeOverlays();
         }
 
         function render() {
-            document.getElementById('gold').innerText = Math.floor(st.gold);
-            document.getElementById('main-p').src = st.petImg || chars[0].i;
-            document.getElementById('f-count').innerText = st.fridge;
-            document.getElementById('b-hth').style.width = st.hth + "%";
-            document.getElementById('b-hng').style.width = st.hng + "%";
-            document.getElementById('b-cln').style.width = st.cln + "%";
-            document.getElementById('b-enr').style.width = st.enr + "%";
-            document.getElementById('b-fun').style.width = st.fun + "%";
-            
-            const g = document.getElementById('g-grid');
-            g.innerHTML = "";
-            st.garden.forEach((p, i) => {
-                let s = p ? (Date.now() - p > 20000 ? "🍎" : "🌱") : "🟤";
-                g.innerHTML += `<div class="plot" onclick="gardenAct(${i})">${s}</div>`;
+            document.getElementById('gold').innerText = state.gold;
+            document.getElementById('xp').innerText = state.xp;
+            document.getElementById('pet-img').src = raw + state.pet;
+            if(state.activeMini) {
+                document.getElementById('mini-img').src = raw + state.activeMini;
+                document.getElementById('mini-img').style.display = 'block';
+            }
+
+            for(let key in state.bars) {
+                document.getElementById('fill-' + key).style.width = state.bars[key] + "%";
+            }
+            document.getElementById('fridge-ui').innerText = `Buzdolabı: Elma(${state.fridge.elma}), Havuç(${state.fridge.havuç}), Çilek(${state.fridge.çilek})`;
+        }
+
+        // MUTFAK
+        function buyPizza() { if(state.gold >= 15) { state.gold -= 15; updateBars('hng', 30); } }
+        function takeMeds() { if(state.gold >= 10) { state.gold -= 10; updateBars('hth', 40); } }
+        function eatFromFridge() {
+            for(let f in state.fridge) {
+                if(state.fridge[f] > 0) {
+                    state.fridge[f]--;
+                    updateBars('hng', 20);
+                    return;
+                }
+            }
+            alert("Buzdolabı boş! Bahçeden meyve topla.");
+        }
+
+        // BANYO & YATAK ODASI
+        function wash() { updateBars('cln', 50); }
+        function startSleep() {
+            let btn = event.target; btn.disabled = true;
+            let time = 10;
+            let iv = setInterval(() => {
+                time--; document.getElementById('sleep-timer').innerText = "Zzz... " + time;
+                if(time <= 0) { 
+                    clearInterval(iv); btn.disabled = false; 
+                    document.getElementById('sleep-timer').innerText = "";
+                    updateBars('slp', 100); 
+                }
+            }, 1000);
+        }
+
+        // BAHÇE
+        function spinSeed() {
+            const types = ['elma', 'havuç', 'çilek'];
+            const picked = types[Math.floor(Math.random()*3)];
+            document.getElementById('garden-plot').innerText = picked + " ekildi... (5 sn)";
+            setTimeout(() => {
+                state.fridge[picked]++;
+                updateBars('gar', 40);
+                document.getElementById('garden-plot').innerText = picked + " toplandı ve buzdolabına gitti!";
+            }, 5000);
+        }
+
+        // BALON OYUNU
+        function startBalloons() {
+            document.getElementById('game-canvas').style.display = 'block';
+            document.getElementById('start-game-btn').style.display = 'none';
+            let score = 0;
+            let gameIv = setInterval(() => {
+                const b = document.createElement('div');
+                b.className = 'balloon';
+                b.style.left = Math.random() * 80 + "%";
+                b.style.background = `hsl(${Math.random()*360}, 70%, 60%)`;
+                b.onclick = () => { 
+                    score++; b.remove(); 
+                    state.gold += 2;
+                    updateBars('fun', 5);
+                };
+                document.getElementById('game-canvas').appendChild(b);
+            }, 800);
+            setTimeout(() => { 
+                clearInterval(gameIv); 
+                document.getElementById('game-canvas').style.display = 'none';
+                document.getElementById('start-game-btn').style.display = 'block';
+                document.getElementById('game-canvas').innerHTML = "";
+            }, 15000);
+        }
+
+        // LABORATUVAR
+        function openEgg() {
+            if(state.gold < 50) return alert("Yeterli altın yok!");
+            state.gold -= 50;
+            const pick = miniPets[Math.floor(Math.random()*6)];
+            if(state.ownedMinis.includes(pick)) {
+                state.xp += 50;
+                alert("Zaten var! 50 XP kazandın.");
+            } else {
+                state.ownedMinis.push(pick);
+                state.activeMini = pick;
+                alert("Yeni mini pet: " + pick.split('.')[0]);
+            }
+            updateIndex(); render();
+        }
+
+        function updateIndex() {
+            const idx = document.getElementById('mini-index');
+            idx.innerHTML = "";
+            miniPets.forEach(m => {
+                const opacity = state.ownedMinis.includes(m) ? "1" : "0.2";
+                idx.innerHTML += `<img src="${raw+m}" style="width:30px; opacity:${opacity};" onclick="if(state.ownedMinis.includes('${m}')) { state.activeMini='${m}'; render(); }">`;
             });
         }
 
-        function gardenAct(i) {
-            if(!st.garden[i]) st.garden[i] = Date.now();
-            else if(Date.now() - st.garden[i] > 20000) { st.fridge++; st.garden[i] = null; }
-            render();
+        // ODALAR ARASI GEÇİŞ
+        function changeRoom(id, btn) {
+            document.querySelectorAll('.room').forEach(r => r.classList.remove('active-room'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('on'));
+            document.getElementById('room-' + id).classList.add('active-room');
+            btn.classList.add('on');
         }
 
-        function startBalloonGame() {
-            const area = document.getElementById('balloon-area');
-            area.style.display = 'block'; document.getElementById('start-balloon').style.display = 'none';
-            let count = 0;
-            let gameInt = setInterval(() => {
-                const b = document.createElement('div');
-                b.className = 'balloon'; b.style.left = Math.random() * 85 + "%";
-                b.style.backgroundColor = `hsl(${Math.random()*360}, 70%, 60%)`;
-                b.onclick = () => { st.gold += 3; b.remove(); render(); };
-                area.appendChild(b);
-                setTimeout(() => b.remove(), 3000);
-                count++; if(count > 15) { clearInterval(gameInt); setTimeout(() => { area.style.display='none'; document.getElementById('start-balloon').style.display='block'; }, 3000); }
-            }, 700);
-        }
-
-        function buyFood() { if(st.gold >= 15) { st.gold -= 15; st.fridge++; render(); } }
-        function eatFood() { if(st.fridge > 0) { st.fridge--; st.hng = Math.min(100, st.hng + 25); render(); } }
-        function startHatch() { if(st.gold >= 100 && st.hatchEnd == 0) { st.gold -= 100; st.hatchEnd = Date.now() + 30000; render(); } }
-        function checkHatch() {
-            let rem = Math.ceil((st.hatchEnd - Date.now()) / 1000);
-            document.getElementById('h-timer').innerText = rem <= 0 ? "BİTTİ!" : rem + "sn";
-            if(rem <= 0) { st.hatchEnd = 0; alert("Yeni mini pet çıktı!"); }
-        }
-
-        function room(id, b) {
-            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.n-btn').forEach(n => n.classList.remove('on'));
-            document.getElementById(id).classList.add('active'); b.classList.add('on');
-            render();
-        }
-
-        init();
+        // PET SEÇİCİ
+        window.onload = () => {
+            const grid = document.getElementById('pet-select-grid');
+            pets.forEach(p => {
+                grid.innerHTML += `<img src="${raw+p}" style="width:80px; cursor:pointer;" onclick="state.pet='${p}'; document.getElementById('selector').style.display='none'; render();">`;
+            });
+            document.getElementById('selector').style.display = 'flex';
+            updateIndex();
+            // Zamanla barların azalması
+            setInterval(() => {
+                for(let k in state.bars) state.bars[k] = Math.max(0, state.bars[k] - 0.5);
+                render();
+            }, 3000);
+        };
     </script>
 </body>
 </html>
