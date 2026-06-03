@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
-    <title>The Pets Mansion V106 - Ultimate Emotion & Multiplayer Edition</title>
+    <title>The Pets Mansion V107 - Ultimate Edition</title>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <style>
@@ -18,92 +18,96 @@
             overflow: hidden; transition: 0.3s; color: #f8fafc; 
         }
 
-        .top-bar { position: fixed; top: 10px; width: 100%; display: flex; justify-content: space-around; z-index: 1000; padding: 0 5px; box-sizing: border-box; }
-        .stat { background: #141b2d; color: white; padding: 6px 12px; border-radius: 12px; font-weight: 900; box-shadow: 0 4px 10px rgba(0,0,0,0.3); font-size: 11px; display: flex; align-items: center; gap: 4px; border: 1px solid #334155; }
+        .top-bar { position: fixed; top: 10px; width: 100%; display: flex; justify-content: space-around; z-index: 1000; padding: 0 5px; box-sizing: border-box; flex-wrap: wrap; gap: 4px; }
+        .stat { background: #141b2d; color: white; padding: 5px 10px; border-radius: 12px; font-weight: 900; box-shadow: 0 4px 10px rgba(0,0,0,0.3); font-size: 10px; display: flex; align-items: center; gap: 3px; border: 1px solid #334155; }
 
-        .game-card { background: var(--card-bg); width: 94%; max-width: 430px; height: 84vh; margin: 55px auto; border-radius: 30px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); display: flex; flex-direction: column; overflow: hidden; position: relative; border: 2px solid #334155; }
+        .game-card { background: var(--card-bg); width: 94%; max-width: 430px; height: 86vh; margin: 65px auto 5px auto; border-radius: 30px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); display: flex; flex-direction: column; overflow: hidden; position: relative; border: 2px solid #334155; }
         .bars-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; padding: 10px; background: #141b2d; border-bottom: 1px solid #334155; }
         .bar-wrap { font-size: 9px; font-weight: 900; color: #94a3b8; }
         .bar-bg { background: #334155; height: 8px; border-radius: 4px; margin-top: 2px; overflow: hidden; }
-        .bar-fill { height: 100%; width: 50%; transition: 0.5s ease; }
+        .bar-fill { height: 100%; width: 50%; transition: 0.3s ease; }
 
         .room { display: none; flex: 1; flex-direction: column; align-items: center; padding: 12px; overflow-y: auto; position: relative; }
         .active-room { display: flex; }
 
-        .stage-area { position: relative; height: 140px; display: flex; justify-content: center; align-items: center; margin-top: 5px; width: 100%; background: #0f172a; border-radius: 20px; border: 1px solid #334155; }
-        .main-pet { height: 100px; width: auto; z-index: 2; object-fit: contain; transition: transform 0.3s ease; }
-        .mini-pet-follow { width: 35px; height: 35px; object-fit: cover; position: absolute; bottom: 5px; right: 20%; z-index: 3; border-radius: 50%; border: 2px solid white; }
+        .stage-area { position: relative; height: 120px; display: flex; justify-content: center; align-items: center; margin-top: 5px; width: 100%; background: #0f172a; border-radius: 20px; border: 1px solid #334155; }
+        .main-pet { height: 90px; width: auto; z-index: 2; object-fit: contain; transition: transform 0.3s ease; }
+        .mini-pet-follow { width: 30px; height: 30px; object-fit: cover; position: absolute; bottom: 5px; right: 20%; z-index: 3; border-radius: 50%; border: 2px solid white; }
 
-        /* CANLI TEPKİ ANİMASYONLARI */
         .bounce { animation: bounceAnim 0.5s ease infinite alternate; }
         .shake { animation: shakeAnim 0.4s ease; }
         .scared { animation: scareAnim 0.3s ease infinite; }
         .spin { animation: spinAnim 0.5s ease; }
         .angry { animation: angryAnim 0.2s ease infinite; }
 
-        @keyframes bounceAnim { 0% { transform: translateY(0); } 100% { transform: translateY(-12px); } }
-        @keyframes shakeAnim { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px) rotate(-3deg); } 75% { transform: translateX(6px) rotate(3deg); } }
-        @keyframes scareAnim { 0%, 100% { transform: scale(1); } 50% { transform: scale(0.9) translateY(3px); } }
+        @keyframes bounceAnim { 0% { transform: translateY(0); } 100% { transform: translateY(-10px); } }
+        @keyframes shakeAnim { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px) rotate(-3deg); } 75% { transform: translateX(5px) rotate(3deg); } }
+        @keyframes scareAnim { 0%, 100% { transform: scale(1); } 50% { transform: scale(0.9) translateY(2px); } }
         @keyframes spinAnim { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         @keyframes angryAnim { 0%, 100% { transform: translateX(0) translateY(0); } 25% { transform: translateX(-2px) translateY(-2px); } 75% { transform: translateX(2px) translateY(2px); } }
 
-        /* MULTIPLAYER ALANLARI */
-        .other-players-area { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: auto; width: 100%; min-height: 55px; border-top: 1px dashed #334155; padding-top: 5px; }
+        .other-players-area { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: auto; width: 100%; min-height: 45px; border-top: 1px dashed #334155; padding-top: 5px; }
         .other-player-pet { text-align: center; position: relative; cursor: pointer; }
-        .other-player-pet img { width: 35px; height: 35px; border-radius: 50%; border: 2px solid var(--p); object-fit: cover; }
+        .other-player-pet img { width: 30px; height: 30px; border-radius: 50%; border: 2px solid var(--p); object-fit: cover; }
 
-        /* BALONCUKLAR */
         .bubble-msg { position: absolute; top: -30px; left: 50%; transform: translateX(-50%); background: white; color: black; padding: 2px 6px; border-radius: 10px; font-size: 11px; font-weight: bold; white-space: nowrap; box-shadow: 0 4px 6px rgba(0,0,0,0.3); z-index: 100; }
-        .bubble-emoji { position: absolute; top: -45px; left: 50%; transform: translateX(-50%); font-size: 22px; animation: bounceAnim 0.4s infinite alternate; z-index: 101; }
-        #room-bubble { position: absolute; top: 8px; background: white; color: black; padding: 6px 10px; border-radius: 12px; font-size: 11px; font-weight: bold; max-width: 85%; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 10; display: none; }
+        .bubble-emoji { position: absolute; top: -45px; left: 50%; transform: translateX(-50%); font-size: 20px; animation: bounceAnim 0.4s infinite alternate; z-index: 101; }
+        #room-bubble { position: absolute; top: 5px; background: white; color: black; padding: 5px 10px; border-radius: 12px; font-size: 11px; font-weight: bold; max-width: 85%; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 10; display: none; }
 
-        /* BAHÇE */
         .garden-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; width: 100%; margin-top: 5px; }
-        .plot { background: #8d6e63; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; border: 3px solid #6d4c41; cursor: pointer; font-size: 20px; }
+        .plot { background: #8d6e63; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center; border: 3px solid #6d4c41; cursor: pointer; font-size: 18px; }
         .plot.ready { animation: bounceAnim 0.4s infinite alternate; }
 
-        /* OYUN ALANI */
-        #game-canvas { background: #87ceeb; width: 100%; height: 150px; border-radius: 20px; position: relative; overflow: hidden; display: none; margin-top: 5px; }
-        .balloon { position: absolute; width: 28px; height: 38px; border-radius: 50%; cursor: pointer; }
-        .falling-fruit { position: absolute; font-size: 22px; z-index: 10; animation: fallDown 2.2s linear forwards; }
+        /* CANDY CRUSH MINI GAME UI */
+        #candy-canvas { width: 100%; display: none; flex-direction: column; align-items: center; background: #1e293b; padding: 8px; box-sizing: border-box; border-radius: 15px; border: 1px solid #334155; margin-top: 5px; }
+        .candy-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; background: #0f172a; padding: 6px; border-radius: 12px; width: 100%; box-sizing: border-box; }
+        .candy-cell { width: 100%; aspect-ratio: 1; border-radius: 8px; background: #24334d; display: flex; align-items: center; justify-content: center; cursor: pointer; box-sizing: border-box; border: 1px solid #334155; transition: 0.2s; }
+        .candy-cell img { width: 85%; height: 85%; object-fit: cover; border-radius: 50%; }
+        .candy-cell.selected { border: 2px solid #f1c40f; background: #3b5278; }
 
-        /* PANELLER VE SEÇİMLER */
-        .section-title { font-size: 10px; font-weight: bold; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin: 4px 0 2px 0; width: 100%; text-align: left; }
-        .emotion-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; width: 100%; max-height: 110px; overflow-y: auto; }
-        .question-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; width: 100%; }
+        .section-title { font-size: 9px; font-weight: bold; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin: 4px 0 2px 0; width: 100%; text-align: left; }
+        .market-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; width: 100%; }
+        .cards-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; width: 100%; }
+        
+        .card-box { background: #141b2d; border: 1px solid #334155; border-radius: 12px; padding: 6px; text-align: center; position: relative; font-size: 10px; font-weight: bold; }
+        .card-box.locked { opacity: 0.25; background: #0b111e; }
+        .card-box img { width: 55px; height: 55px; border-radius: 8px; object-fit: cover; margin-bottom: 4px; border: 1px solid #475569; }
+        .card-tier { font-size: 9px; padding: 2px 4px; border-radius: 4px; color: #fff; margin-top: 3px; display: inline-block; }
 
-        .leaderboard-list { width: 100%; background: #141b2d; border-radius: 15px; padding: 8px; box-sizing: border-box; margin-top: 4px; font-size: 11px; border: 1px solid #334155; }
-        .leaderboard-item { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #24334d; font-weight: bold; }
+        .market-item { background: #141b2d; border: 1px solid #334155; border-radius: 12px; padding: 6px; display: flex; flex-direction: column; align-items: center; justify-content: space-between; text-align: center; font-size: 11px; }
 
-        @keyframes fallDown { from { top: -30px; } to { top: 160px; } }
+        .leaderboard-list { width: 100%; background: #141b2d; border-radius: 15px; padding: 6px; box-sizing: border-box; margin-top: 4px; font-size: 10px; border: 1px solid #334155; }
+        .leaderboard-item { display: flex; justify-content: space-between; padding: 3px 0; border-bottom: 1px solid #24334d; font-weight: bold; }
 
-        .btn { border: none; padding: 8px; border-radius: 12px; color: white; font-weight: 900; cursor: pointer; width: 95%; margin: 2px 0; box-shadow: 0 3px 0 rgba(0,0,0,0.2); font-size: 11px; transition: transform 0.1s; }
+        .btn { border: none; padding: 8px; border-radius: 12px; color: white; font-weight: 900; cursor: pointer; width: 95%; margin: 2px 0; box-shadow: 0 3px 0 rgba(0,0,0,0.2); font-size: 11px; transition: transform 0.1s; display: inline-block; text-align: center; }
         .btn:active { transform: scale(0.97); }
-        .nav { height: 50px; display: flex; justify-content: space-around; align-items: center; background: #141b2d; border-top: 1px solid #334155; width: 100%; }
-        .nav-btn { font-size: 16px; cursor: pointer; opacity: 0.4; background: none; border: none; padding: 10px; transition: all 0.2s; }
-        .nav-btn.on { opacity: 1; color: var(--p); transform: scale(1.15); }
+        .nav { height: 50px; display: flex; justify-content: space-around; align-items: center; background: #141b2d; border-top: 1px solid #334155; width: 100%; overflow-x: auto; }
+        .nav-btn { font-size: 15px; cursor: pointer; opacity: 0.4; background: none; border: none; padding: 8px; transition: all 0.2s; flex-shrink: 0; }
+        .nav-btn.on { opacity: 1; color: var(--p); transform: scale(1.1); }
 
         #char-overlay { position: fixed; inset: 0; background: rgba(15,23,42,0.95); z-index: 5000; display: none; flex-direction: column; align-items: center; padding-top: 25px; overflow-y: auto; }
-        .char-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 15px; padding: 0 15px; }
+        .char-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px; padding: 0 10px; }
         .char-card { text-align: center; cursor: pointer; }
-        .char-card img { width: 80px; height: 80px; object-fit: cover; border-radius: 15px; border: 3px solid transparent; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-        .char-card p { margin: 3px 0 0 0; font-size: 11px; font-weight: bold; color: #cbd5e1; }
+        .char-card img { width: 75px; height: 75px; object-fit: cover; border-radius: 15px; border: 3px solid transparent; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .char-card p { margin: 3px 0 0 0; font-size: 10px; font-weight: bold; color: #cbd5e1; }
         .char-card.selected img { border-color: var(--p); }
     </style>
 </head>
 <body>
 
     <div id="char-overlay">
-        <h2 style="margin-bottom: 5px; color: white;">Karakterini Seç</h2>
+        <h2 style="margin-bottom: 5px; color: white; font-size: 18px;">Karakterini Seç</h2>
         <div class="char-grid" id="char-list"></div>
-        <button class="btn" style="background:#334155; margin:20px 0; width:150px;" onclick="closeCharMenu()">Kapat</button>
+        <button class="btn" style="background:#334155; margin:20px 0; width:130px;" onclick="closeCharMenu()">Kapat</button>
     </div>
 
     <div class="top-bar">
         <div class="stat">💰 <span id="gold">200</span></div>
-        <div class="stat" id="my-code-display">🆔 Yükleniyor...</div>
+        <div class="stat">💎 <span id="diamonds">0</span></div>
+        <div class="stat">🍬 <span id="sugar">0</span></div>
+        <div class="stat" id="my-code-display">🆔...</div>
         <div class="stat">✨ Lvl <span id="lvl">1</span> (<span id="xp">0</span>)</div>
-        <button class="stat" onclick="openCharMenu()" style="cursor:pointer; border:1px solid var(--p);">🔄 Değiştir</button>
+        <button class="stat" onclick="openCharMenu()" style="cursor:pointer; border:1px solid var(--p); color: #a855f7;">🔄 Değiştir</button>
     </div>
 
     <div class="game-card">
@@ -124,17 +128,18 @@
 
         <div id="room-kitchen" class="room active-room">
             <div id="fridge-ui" style="font-size:11px; margin-bottom:4px; font-weight:bold; color:#a855f7;">🍎:0 | 🥕:0 | 🍓:0</div>
-            <button class="btn" style="background:#e74c3c" onclick="buyPizza()">🍕 PİZZA (15💰)</button>
-            <button class="btn" style="background:#2ecc71" onclick="eatFridge()">🥫 BUZDOLABINDAN YE</button>
-            <button class="btn" style="background:#9b59b6" onclick="craftSmoothie()">🍹 SÜPER SMOOTHIE (Açlık & Sağlık)</button>
+            <div id="inventory-ui" style="font-size:10px; margin-bottom:6px; color:#94a3b8; text-align:center;">Envanter: 🍕 Pizza: <span id="inv-pizza">0</span> | 🥫 Hazır Yemek: <span id="inv-fridge">0</span></div>
+            <button class="btn" style="background:#e74c3c" onclick="eatPizza()">🍕 PİZZA YE (Envanterden)</button>
+            <button class="btn" style="background:#2ecc71" onclick="eatFridge()">🥫 BUZDOLABINDAN SEBZE YE</button>
+            <button class="btn" style="background:#9b59b6" onclick="craftSmoothie()">🍹 SÜPER SMOOTHIE YAP (1 Elma, 1 Çilek Gerekir)</button>
             <div class="other-players-area" id="players-kitchen"></div>
         </div>
 
         <div id="room-garden" class="room">
             <div style="display:flex; gap:12px; margin-bottom:5px;">
-                <button onclick="state.seed='elma'; setupSeedUI(this)" style="border:2px solid var(--p); background:white; font-size:20px; border-radius:8px; padding:2px 8px;">🍎</button>
-                <button onclick="state.seed='havuç'; setupSeedUI(this)" style="border:none; background:white; font-size:20px; border-radius:8px; padding:2px 8px;">🥕</button>
-                <button onclick="state.seed='çilek'; setupSeedUI(this)" style="border:none; background:white; font-size:20px; border-radius:8px; padding:2px 8px;">🍓</button>
+                <button onclick="state.seed='elma'; setupSeedUI(this)" style="border:2px solid var(--p); background:white; font-size:18px; border-radius:8px; padding:2px 8px;">🍎</button>
+                <button onclick="state.seed='havuç'; setupSeedUI(this)" style="border:none; background:white; font-size:18px; border-radius:8px; padding:2px 8px;">🥕</button>
+                <button onclick="state.seed='çilek'; setupSeedUI(this)" style="border:none; background:white; font-size:18px; border-radius:8px; padding:2px 8px;">🍓</button>
             </div>
             <div class="garden-grid">
                 <div class="plot" onclick="plant(0)" id="plot-0"></div>
@@ -159,17 +164,23 @@
         </div>
 
         <div id="room-play" class="room">
-            <div style="display:flex; gap:5px; width:100%; margin-bottom: 5px;">
-                <button class="btn" style="background:var(--fun); width:50%; margin:0;" id="game-btn" onclick="startMultiplayerBalloons()">🎈 BALON YARIŞI</button>
-                <button class="btn" style="background:#e67e22; width:50%; margin:0;" id="game-btn2" onclick="startCatchGame()">🍎 MEYVE YAKALA</button>
+            <div style="width:100%; text-align:center; margin-bottom:5px;">
+                <button class="btn" style="background:#10b981;" id="start-candy-btn" onclick="startCandyGame()">🍬 PET EŞLEŞTİRME OYUNUNU BAŞLAT (1 Hamle Gerekir)</button>
             </div>
-            <div id="game-canvas"></div>
+            
+            <div id="candy-canvas">
+                <div style="display:flex; justify-content:space-between; width:100%; font-size:11px; font-weight:bold; color:#f1c40f; margin-bottom:4px;">
+                    <span>Hedef: 4'lü Pet Eşleştir!</span>
+                    <span id="candy-status">Maç Bekleniyor</span>
+                </div>
+                <div class="candy-grid" id="candy-grid-element"></div>
+            </div>
             <div class="other-players-area" id="players-play"></div>
         </div>
 
         <div id="room-lab" class="room">
             <button class="btn" style="background:var(--p)" onclick="openEgg()">🥚 YUMURTA AÇ (50💰)</button>
-            <div id="index-grid" style="display:grid; grid-template-columns:repeat(6,1fr); gap:5px; margin-top:5px;"></div>
+            <div id="index-grid" style="display:grid; grid-template-columns:repeat(6,1fr); gap:4px; margin-top:5px;"></div>
             <h4 style="margin: 8px 0 2px 0; font-size:11px; color:#94a3b8;">🏆 EN ZENGİN PETLER</h4>
             <div class="leaderboard-list" id="leaderboard"></div>
             <div class="other-players-area" id="players-lab"></div>
@@ -179,9 +190,10 @@
             <div style="background:#141b2d; width:100%; padding:6px; border-radius:10px; margin-bottom:4px; text-align:center; font-size:11px; font-weight:bold; border:1px solid #334155;">
                 <span id="moodLabel">Duygu: Normal 🙂</span> | <span id="percentageLabel">Mutluluk: 80%</span>
             </div>
-            
-            <div class="section-title">💬 Karakterle Konuş (6 Soru)</div>
-            <div class="question-grid">
+            <div id="emo-inv-display" style="font-size:9px; color:#f1c40f; font-weight:bold; margin-bottom:2px;">Eşya Stokların Marketten Alınınca Burada Görünür.</div>
+
+            <div class="section-title">💬 Konuş (6 Soru)</div>
+            <div class="question-grid" style="display:grid; grid-template-columns:repeat(2,1fr); gap:4px; width:100%;">
                 <button class="btn" style="background:#059669; margin:1px;" onclick="askQuestion('likes')">❤️ Neleri Seversin?</button>
                 <button class="btn" style="background:#059669; margin:1px;" onclick="askQuestion('dislikes')">❌ Neleri Sevmezsin?</button>
                 <button class="btn" style="background:#059669; margin:1px;" onclick="askQuestion('favOne')">🌟 En Sevdiğin Şey?</button>
@@ -190,38 +202,30 @@
                 <button class="btn" style="background:#059669; margin:1px;" onclick="askQuestion('intro')">✨ Kendini Tanıtır Mısın?</button>
             </div>
 
-            <div class="section-title">🎁 Eşya / Durum Gönder</div>
-            <div class="emotion-grid">
-                <button class="btn" style="background:#2563eb; font-size:9px; padding:6px 2px;" onclick="giveItem('pamuk_seker')">🍭 P.Şeker</button>
-                <button class="btn" style="background:#2563eb; font-size:9px; padding:6px 2px;" onclick="giveItem('cikolata')">🍫 Çikolata</button>
-                <button class="btn" style="background:#2563eb; font-size:9px; padding:6px 2px;" onclick="giveItem('gofret')">🧇 Gofret</button>
-                <button class="btn" style="background:#2563eb; font-size:9px; padding:6px 2px;" onclick="giveItem('sut')">🥛 Süt</button>
-                <button class="btn" style="background:#2563eb; font-size:9px; padding:6px 2px;" onclick="giveItem('dondurma')">🍦 Dondurma</button>
-                <button class="btn" style="background:#2563eb; font-size:9px; padding:6px 2px;" onclick="giveItem('emoji')">😊 Emoji</button>
-                <button class="btn" style="background:#2563eb; font-size:9px; padding:6px 2px;" onclick="giveItem('uzay')">🚀 Uzay</button>
-                <button class="btn" style="background:#2563eb; font-size:9px; padding:6px 2px;" onclick="giveItem('elma')">🍏 Elma</button>
-                <button class="btn" style="background:#2563eb; font-size:9px; padding:6px 2px;" onclick="giveItem('uzum')">🍇 Üzüm</button>
-                <button class="btn" style="background:#2563eb; font-size:9px; padding:6px 2px;" onclick="giveItem('oyuncak')">🧸 Oyuncak</button>
-                <button class="btn" style="background:#2563eb; font-size:9px; padding:6px 2px;" onclick="giveItem('kaplan')">🐯 Kaplan</button>
-                <button class="btn" style="background:#2563eb; font-size:9px; padding:6px 2px;" onclick="giveItem('rakun')">🦝 Rakun</button>
-                <button class="btn" style="background:#2563eb; font-size:9px; padding:6px 2px;" onclick="giveItem('kedi')">🐱 Kedi</button>
-                <button class="btn" style="background:#2563eb; font-size:9px; padding:6px 2px;" onclick="giveItem('yagmur')">🌧️ Yağmur</button>
-                <button class="btn" style="background:#2563eb; font-size:9px; padding:6px 2px;" onclick="giveItem('karanlik')">🖤 Karanlık</button>
-                <button class="btn" style="background:#2563eb; font-size:9px; padding:6px 2px;" onclick="giveItem('parfum')">🧪 Parfüm</button>
-            </div>
+            <div class="section-title">🎁 Stoktan Eşya Gönder (Marketten Alınmalıdır)</div>
+            <div class="emotion-grid" id="emotion-items-box" style="display:grid; grid-template-columns:repeat(4,1fr); gap:4px; width:100%; max-height:100px; overflow-y:auto;"></div>
             <div class="other-players-area" id="players-emotion"></div>
         </div>
 
-        <div style="padding: 6px 12px; background: #141b2d; border-top:1px solid #334155;">
+        <div id="room-market" class="room">
+            <div class="section-title">🛍️ Market - 16 Duygu Eşyası & Gelişmiş Ürünler</div>
+            <div class="market-grid" id="market-products-element"></div>
+        </div>
+
+        <div id="room-collection" class="room">
+            <div class="section-title">🏆 Kart Koleksiyonu (45 Kart Sistemi)</div>
+            <div style="font-size:9px; color:#94a3b8; margin-bottom:5px; text-align:left; width:100%;">Her karakterin 5. Seviyesinde Normal, 10. Seviyesinde Tahta, 15. Seviyesinde Bakır, 20. Seviyesinde Gümüş, 25. Seviyesinde Altın kartı açılır.</div>
+            <div class="cards-container" id="cards-container-element"></div>
+        </div>
+
+        <div style="padding: 4px 10px; background: #141b2d; border-top:1px solid #334155;">
             <div style="display:flex; gap:4px; justify-content:center; flex-wrap:wrap;">
-                <button style="font-size:14px; border:none; background:#24334d; padding:4px 10px; border-radius:8px; cursor:pointer;" onclick="sendEmoji('👋')">👋</button>
-                <button style="font-size:14px; border:none; background:#24334d; padding:4px 10px; border-radius:8px; cursor:pointer;" onclick="sendEmoji('😊')">😊</button>
-                <button style="font-size:14px; border:none; background:#24334d; padding:4px 10px; border-radius:8px; cursor:pointer;" onclick="sendEmoji('❤️')">❤️</button>
-                <button style="font-size:14px; border:none; background:#24334d; padding:4px 10px; border-radius:8px; cursor:pointer;" onclick="sendEmoji('🔥')">🔥</button>
-                <button style="font-size:14px; border:none; background:#24334d; padding:4px 10px; border-radius:8px; cursor:pointer;" onclick="sendEmoji('👍')">👍</button>
-                <button style="font-size:14px; border:none; background:#24334d; padding:4px 10px; border-radius:8px; cursor:pointer;" onclick="sendEmoji('😭')">😭</button>
-                <button style="font-size:14px; border:none; background:#24334d; padding:4px 10px; border-radius:8px; cursor:pointer;" onclick="sendEmoji('😡')">😡</button>
-                <button style="font-size:14px; border:none; background:#24334d; padding:4px 10px; border-radius:8px; cursor:pointer;" onclick="sendEmoji('🎉')">🎉</button>
+                <button style="font-size:12px; border:none; background:#24334d; padding:4px 8px; border-radius:8px; cursor:pointer;" onclick="sendEmoji('👋')">👋</button>
+                <button style="font-size:12px; border:none; background:#24334d; padding:4px 8px; border-radius:8px; cursor:pointer;" onclick="sendEmoji('😊')">😊</button>
+                <button style="font-size:12px; border:none; background:#24334d; padding:4px 8px; border-radius:8px; cursor:pointer;" onclick="sendEmoji('❤️')">❤️</button>
+                <button style="font-size:12px; border:none; background:#24334d; padding:4px 8px; border-radius:8px; cursor:pointer;" onclick="sendEmoji('🔥')">🔥</button>
+                <button style="font-size:12px; border:none; background:#24334d; padding:4px 8px; border-radius:8px; cursor:pointer;" onclick="sendEmoji('👍')">👍</button>
+                <button style="font-size:12px; border:none; background:#24334d; padding:4px 8px; border-radius:8px; cursor:pointer;" onclick="sendEmoji('😭')">😭</button>
             </div>
         </div>
 
@@ -233,6 +237,8 @@
             <button class="nav-btn" onclick="changeRoom('play', this)">🎮</button>
             <button class="nav-btn" onclick="changeRoom('lab', this)">🧬</button>
             <button class="nav-btn" onclick="changeRoom('emotion', this)">🧠</button>
+            <button class="nav-btn" onclick="changeRoom('market', this)">🛒</button>
+            <button class="nav-btn" onclick="changeRoom('collection', this)">🃏</button>
         </div>
     </div>
 
@@ -243,12 +249,10 @@
         const db = firebase.database();
 
         const raw = "https://raw.githubusercontent.com/darwin456222-ops/Darwiizl/main/";
-        
-        // Karakterler ve Veritabanı Eşleştirmeleri
-        const mainPets = ["sugar.jpg", "moosey.jpg", "yeyet.jpg", "dot.jpg", "squeak.jpg", "blinky.jpg", "flip.jpg", "gus.jpg"];
-        const miniPetFiles = ["mini.sugar.jpg", "mini.squeak.jpg", "mini.dot.jpg", "mini.yeyet.jpg", "mini.gus.jpg", "mini.flip.jpg"];
 
-        // Benzersiz Arkadaşlık Kodu Sistemi (PM-XXXX)
+        const mainPets = ["sugar.jpg", "moosey.jpg", "yeyet.jpg", "dot.jpg", "squeak.jpg", "blinky.jpg", "flip.jpg", "gus.jpg", "blook.jpg"];
+        const miniPetFiles = ["mini.sugar.jpg", "mini.squeak.jpg", "mini.dot.jpg", "mini.yeyet.jpg", "mini.gus.jpg", "mini.flip.jpg", "mini.moosey.jpg", "mini.blook.jpg"];
+
         let myId = localStorage.getItem('pm_friend_code');
         if(!myId) {
             myId = 'PM-' + Math.floor(Math.random() * 9000 + 1000);
@@ -256,17 +260,43 @@
         }
         document.getElementById('my-code-display').innerText = "🆔 " + myId;
 
-        // OYUN DURUM MATRİSİ
         let state = {
-            gold: 200, xp: 0, level: 1, activePet: "sugar.jpg", seed: 'elma',
+            gold: 200, 
+            diamonds: 0, 
+            sugarTokens: 0,
+            xp: 0, 
+            level: 1, 
+            activePet: "sugar.jpg", 
+            seed: 'elma',
             fridge: { elma: 3, havuç: 1, çilek: 1 },
             bars: { hng: 70, cln: 70, slp: 70, fun: 70, hth: 70, gar: 70 },
             plots: [null, null, null, null, null, null],
-            ownedMinis: [], activeMini: null,
-            emo: "", happiness: 80
+            ownedMinis: [], 
+            activeMini: null,
+            emo: "", 
+            happiness: 80,
+            petLevels: { "sugar.jpg": 1, "moosey.jpg": 1, "yeyet.jpg": 1, "dot.jpg": 1, "squeak.jpg": 1, "blinky.jpg": 1, "flip.jpg": 1, "gus.jpg": 1, "blook.jpg": 1 },
+            emoInventory: {
+                pamuk_seker: 0, cikolata: 0, gofret: 0, sut: 0, dondurma: 0, emoji: 0, uzay: 0, elma: 0,
+                uzum: 0, oyuncak: 0, kaplan: 0, rakun: 0, kedi: 0, yagmur: 0, karanlik: 0, parfum: 0, pizza: 0
+            }
         };
 
-        // 2. KODDAN GELEN DERİN DUYGU VE CEVAP MATRİSİ
+        const marketPrices = {
+            elma: 8, gofret: 12, sut: 16, uzum: 20, kedi: 24, emoji: 28, dondurma: 32, yagmur: 36,
+            oyuncak: 40, cikolata: 44, rakun: 48, pamuk_seker: 52, parfum: 56, uzay: 65, karanlik: 70, kaplan: 80,
+            pizza: 35
+        };
+
+        // KART TÜRÜ TANIMLAMALARI (Dosya adı için id ekledik)
+        const cardTiers = [
+            { name: "Normal", id: "normal", lvl: 5, color: "#94a3b8" },
+            { name: "Tahta", id: "tahta", lvl: 10, color: "#8d6e63" },
+            { name: "Bakır", id: "bakir", lvl: 15, color: "#d35400" },
+            { name: "Gümüş", id: "gumus", lvl: 20, color: "#bdc3c7" },
+            { name: "Altın", id: "altin", lvl: 25, color: "#f1c40f" }
+        ];
+
         const emotionalData = {
             "sugar.jpg": {
                 personality: "Neşeli", msgIdle: "Merhaba! Ben neşeli bir unicornum! 🦄",
@@ -295,6 +325,27 @@
                     parfum: { text: "Öhö öhö! Bu parfüm kokusu çok ağır, sevmedim! 🧪", status: "dislike", anim: "shake" }
                 }
             },
+            "blook.jpg": {
+                personality: "Gizemli Hayalet", msgIdle: "Buralar biraz soğuk mu... 👻",
+                qLikes: "Karanlık, yağmur, uzay, parfüm, üzüm, süt ve emojileri severim... 🖤",
+                qDislikes: "Oyuncak, elma, çikolata, kaplan, pamuk şeker ve gofretleri sevmem. ❌",
+                qFavOne: "En sevdiğim şey loş ve sessiz karanlık. 🖤",
+                qHateOne: "Gürültülü and parlak oyuncaklar! 🧸",
+                qFriend: "Gus öğretmen beni hep sessiz olduğum için takdir eder. 🤝",
+                qIntro: "Ben Blook. Şatoda sessizce dolaşmayı and gizemli olayları izlemeyi seven bir hayaletim. 👻",
+                responses: {
+                    karanlik: { text: "Ah, ruhumu dinlendiren harika bir karanlık... 🖤", status: "like", anim: "spin" },
+                    yagmur: { text: "Yağmur damlaları içimden geçip gidiyor, çok huzurlu. 🌧", status: "like", anim: "spin" },
+                    uzay: { text: "Uzay boşluğu tam bana göre bir yer. 🚀", status: "like", anim: "spin" },
+                    parfum: { text: "Bu koku havayı çok gizemli yapıyor. 🧪", status: "like", anim: "spin" },
+                    uzum: { text: "Üzüm tanelerini severim. 🍇", status: "like", anim: "spin" },
+                    sut: { text: "Beyaz bir sıvı, hayalet renginde... Güzel. 🥛", status: "like", anim: "spin" },
+                    emoji: { text: "Göz kırpan emojiler fena değil. 😉", status: "like", anim: "spin" },
+                    oyuncak: { text: "Çok ses çıkartıyor! Götür şunu buradan! 🧸", status: "dislike", anim: "shake" },
+                    elma: { text: "Isıramıyorum bile, içimden geçiyor! 🍏", status: "dislike", anim: "shake" },
+                    cikolata: { text: "Tadı çok ağır, enerjimi bozuyor. 🍫", status: "dislike", anim: "shake" }
+                }
+            },
             "moosey.jpg": {
                 personality: "Utangaç", msgIdle: "Şey... Selam, ben Moosey.. 🦌",
                 qLikes: "Rakunları, üzümü, oyuncakları, çikolatayı, gofreti, sütü, emojileri, kedileri ve yağmuru çok severim! 🌧️🦝",
@@ -314,7 +365,7 @@
                     kedi: { text: "Miyavlayan kedileri uzaktan sevmeye bayılırım. 🐱", status: "like", anim: "bounce" },
                     yagmur: { text: "Yağmur damlalarının sesi beni hiç korkutmuyor, seviyorum. 🌧️", status: "like", anim: "bounce" },
                     pamuk_seker: { text: "Pamuk şeker dişlerime yapışıyor, hiç sevmem.. 🍭", status: "dislike", anim: "scared" },
-                    elma: { text: "Elma çok sert, çiğnerken utanıyorum.. Sevmem. 🍏", status: "dislike", anim: "scared" },
+                    elma: { text: "Elma çok sert, çiğneyemiyorum şapşal dişlerimle.. Sevmem. 🍏", status: "dislike", anim: "scared" },
                     dondurma: { text: "Dondurma çok soğuk, boğazımı acıtıyor. 🍦", status: "dislike", anim: "scared" },
                     uzay: { text: "Uzayın o sonsuz boşluğu beni çok ürkütüyor. 🚀", status: "dislike", anim: "scared" },
                     kaplan: { text: "İmdat! Kaplan mı?! Çok korkarım, lütfen götür onu! 🐯", status: "dislike", anim: "scared" },
@@ -329,7 +380,7 @@
                 qFavOne: "En sevdiğim şey akıllıca tasarlanmış oyuncaklar! 🧸",
                 qHateOne: "En sevmediğim şey tüylerimi ürperten kediler! 🐱",
                 qFriend: "Akıllı dostum Moosey! Onunla vakit geçirmek harika. 🦌",
-                qIntro: "Ben Yeyet. Bir hamster ve yeti karışımıyım! Laboratuvarımı ve bilimi severim! 🐹❄️",
+                qIntro: "Ben Yeyet. Bir hamster Jand yeti karışımıyım! Laboratuvarımı Jand bilimi severim! 🐹❄️",
                 responses: {
                     pamuk_seker: { text: "Enerji seviyemi yükseltmek için harika bir pamuk şeker! 🍭", status: "like", anim: "bounce" },
                     gofret: { text: "Bu gofret formülü tam olarak ağzıma layık! 🧇", status: "like", anim: "bounce" },
@@ -351,19 +402,19 @@
             },
             "dot.jpg": {
                 personality: "Bilgili", msgIdle: "Sistemler optimize edildi. Merhaba. 🤖",
-                qLikes: "Gofret, dondurma, rakun, elma, emoji, uzay ve kediler veri tabanımda olumlu yer tutar! 🚀🦝",
-                qDislikes: "Pamuk şeker, çikolata, süt, üzüm, oyuncak, kaplan, yağmur, karanlık ve parfüm sistemimi bozar! ❌",
+                qLikes: "Gofret, dondurma, rakun, elma, emoji, uzay Jand kediler veri tabanımda olumlu yer tutar! 🚀🦝",
+                qDislikes: "Pamuk şeker, çikolata, süt, üzüm, oyuncak, kaplan, yağmur, karanlık Jand parfüm sistemimi bozar! ❌",
                 qFavOne: "En sevdiğim şey sonsuz bilgi dolu uzay! 🚀🌌",
                 qHateOne: "En sevmediğim şey devrelerimi etkileyen yağmur! 🌧️",
-                qFriend: "Benimle mantıklı konuşan ve sistemi yormayan tüm akıllı canlılar. 🦾",
-                qIntro: "Ben Dot. Bilgiyi işleyen, rasyonel ve koruyucu bir robot sistemiyim. 🤖",
+                qFriend: "Benimle mantıklı konuşan Jand sistemi yormayan tüm akıllı canlılar. 🦾",
+                qIntro: "Ben Dot. Bilgiyi işleyen, rasyonel Jand koruyucu bir robot sistemiyim. 🤖",
                 responses: {
                     gofret: { text: "Gofret tüketimi enerji hücrelerimi stabilize etti. 🧇", status: "like", anim: "spin" },
                     dondurma: { text: "Dondurma işlemcimi serinletiyor, olumlu veri. 🍦", status: "like", anim: "spin" },
                     rakun: { text: "Rakunların adaptasyon yeteneği veri tabanımda onaylandı. 🦝", status: "like", anim: "spin" },
                     elma: { text: "Elma organik vitamin değerleri açısından başarılı. 🍏", status: "like", anim: "spin" },
                     emoji: { text: "Dijital emojiler iletişim hızını artırır, onaylandı. 😊", status: "like", anim: "spin" },
-                    uzay: { text: "Sonsuz uzay! En sevdiğim bilgi ve veri kaynağı! 🚀", status: "like", anim: "spin" },
+                    uzay: { text: "Sonsuz uzay! En sevdiğim bilgi Jand veri kaynağı! 🚀", status: "like", anim: "spin" },
                     kedi: { text: "Kedilerin mırlama frekansı sistemime huzur veriyor. 🐱", status: "like", anim: "spin" },
                     pamuk_seker: { text: "Hata! Pamuk şeker yüksek şeker nedeniyle sistemimi yoruyor. 🍭", status: "dislike", anim: "shake" },
                     cikolata: { text: "Çikolata bileşenleri robotik yapımla uyumsuz, sevmedim. 🍫", status: "dislike", anim: "shake" },
@@ -378,8 +429,8 @@
             },
             "squeak.jpg": {
                 personality: "Şapşal (Silly)", msgIdle: "Zıp zıp! Ben Squeak! 🤪",
-                qLikes: "Pamuk şeker, çikolata, gofret, rakun, oyuncak, dondurma ve emojileri çok severim! 🧇🤪",
-                qDislikes: "Süt, elma, üzüm, uzay, kaplan, kedi, yağmur, karanlık ve parfüm mü? Hayır, sevmem! 🥛❌",
+                qLikes: "Pamuk şeker, çikolata, gofret, rakun, oyuncak, dondurma Jand emojileri çok severim! 🧇🤪",
+                qDislikes: "Süt, elma, üzüm, uzay, kaplan, kedi, yağmur, karanlık Jand parfüm mü? Hayır, sevmem! 🥛❌",
                 qFavOne: "En sevdiğim şey kocaman bir kutu oyuncak! 🧸🎉",
                 qHateOne: "En sevmediğim şey kokusundan nefret ettiğim parfüm! 🧪",
                 qFriend: "Yeyet, Dot, Moosey! Hepsiyle şapşallık yapmaya bayılırım! 🤪",
@@ -405,38 +456,38 @@
             },
             "blinky.jpg": {
                 personality: "Saf", msgIdle: "Uzaydan dünyaya sevgi getirdim! 👽",
-                qLikes: "Pamuk şeker, çikolata, gofret, süt, rakun, üzüm, oyuncak, dondurma, emoji, uzay, yağmur ve karanlığı severim! 👽🖤",
-                qDislikes: "Elma, kaplan, kedi ve parfümden hoşlanmam. 🍏🐯",
+                qLikes: "Pamuk şeker, çikolata, gofret, süt, rakun, üzüm, oyuncak, dondurma, emoji, uzay, yağmur Jand karanlığı severim! 👽🖤",
+                qDislikes: "Elma, kaplan, kedi Jand parfümden hoşlanmam. 🍏🐯",
                 qFavOne: "En sevdiğim şey evim olan güzel uzay! 🚀🌌",
                 qHateOne: "En sevmediğim şey kokusu beni bayıltan parfüm! 🧪",
                 qFriend: "Kalbi temiz olan, bana uzay hikayelerinde eşlik eden herkes dostumdur! 🌎",
-                qIntro: "Ben Blinky. Galaksiler arası yolculuk yapan, saf ve sevgi dolu bir uzaylıyım! 👽 UFO'm var!",
+                qIntro: "Ben Blinky. Galaksiler arası yolculuk yapan, saf Jand sevgi dolu bir uzaylıyım! 👽 UFO'm var!",
                 responses: {
                     pamuk_seker: { text: "Dünyanın pamuk şekeri bizim gezegendeki bulutlara benziyor, çok iyi! 🍭", status: "like", anim: "bounce" },
                     cikolata: { text: "Bu çikolata enerjimi maksimum seviyeye çıkardı! 🍫", status: "like", anim: "bounce" },
                     gofret: { text: "Çıtır çıtır gofretler uzay gemisinde yemek için harika. 🧇", status: "like", anim: "bounce" },
-                    sut: { text: "Beyaz sıvı süt, dünyadaki en saf ve güzel şeylerden biri! 🥛", status: "like", anim: "bounce" },
+                    sut: { text: "Beyaz sıvı süt, dünyadaki en saf Jand güzel şeylerden biri! 🥛", status: "like", anim: "bounce" },
                     rakun: { text: "Rakun dostumuzun gözlerindeki bantlar tıpkı bir uzay gözlüğü gibi! 🦝", status: "like", anim: "bounce" },
                     uzum: { text: "Küçük mor üzüm taneleri uzay meyvesi gibi lezzetli! 🍇", status: "like", anim: "bounce" },
                     oyuncak: { text: "Dünya oyuncakları çok yaratıcı, bayıldım! 🧸", status: "like", anim: "bounce" },
                     dondurma: { text: "Soğuk dondurma tıpkı Neptün gezegeni gibi, çok severim! 🍦", status: "like", anim: "bounce" },
                     emoji: { text: "Emojiler evrensel bir dildir, tüm uzaylılar anlar! 😊", status: "like", anim: "bounce" },
-                    uzay: { text: "Sonsuz uzay benim evim! En sevdiğim yer ve durumdur! 🚀", status: "like", anim: "bounce" },
+                    uzay: { text: "Sonsuz uzay benim evim! En sevdiğim yer Jand durumdur! 🚀", status: "like", anim: "bounce" },
                     yagmur: { text: "Gezegenimize hiç yağmur yağmazdı, bu doğa olayını çok seviyorum. 🌧️", status: "like", anim: "bounce" },
                     karanlik: { text: "Karanlık uzayın doğal rengidir, bana huzur veriyor. 🖤", status: "like", anim: "bounce" },
                     elma: { text: "Elmanın tadını bir türlü sevemedim dostum, bana göre değil. 🍏", status: "dislike", anim: "shake" },
                     kaplan: { text: "Vahşi kaplanlar çok hırçın, saf kalbimi kırıyorlar. 🐯", status: "dislike", anim: "shake" },
                     kedi: { text: "Kediler antenlerimi tırmalamaya çalıştı, hiç hoşlanmadım. 🐱", status: "dislike", anim: "shake" },
-                    parfum: { text: "Öhö! Ağır kimyasal parfüm kokusu uzaylı ciğerlerimi mahvetti, berbat! 🧪", status: "dislike", anim: "shake" }
+                    parfum: { text: "Ağır kimyasal parfüm kokusu uzaylı ciğerlerimi mahvetti, berbat! 🧪", status: "dislike", anim: "shake" }
                 }
             },
             "flip.jpg": {
                 personality: "Savunucu", msgIdle: "Adalet her zaman kazanır! 🦅",
-                qLikes: "Çikolata, gofret, elma, üzüm, oyuncak, dondurma, emoji, uzay, kedi, yağmur ve parfümü severim! 🍏🦅",
-                qDislikes: "Pamuk şeker, süt, rakun, kaplan ve karanlıktan nefret ederim! 🍭❌",
-                qFavOne: "En sevdiğim şey sulu ve kırmızı bir elma! 🍏",
+                qLikes: "Çikolata, gofret, elma, üzüm, oyuncak, dondurma, emoji, uzay, kedi, yağmur Jand parfümü severim! 🍏🦅",
+                qDislikes: "Pamuk şeker, süt, rakun, kaplan Jand karanlıktan nefret ederim! 🍭❌",
+                qFavOne: "En sevdiğim şey sulu Jand kırmızı bir elma! 🍏",
                 qHateOne: "En sevmediğim şey vahşi kaplanlar! 🐯",
-                qFriend: "Can dostum Moosey'yi her zaman korur ve savunurum. O benim en has arkadaşımdır! 🦌",
+                qFriend: "Can dostum Moosey'yi her zaman korur Jand savunurum. O benim en has arkadaşımdır! 🦌",
                 qIntro: "Ben Flip. Adalet peşinde koşan, arkadaşlarını kötülüklerden koruyan akıllı bir kuşum! 🦅",
                 responses: {
                     cikolata: { text: "Geceleri uçarken çikolata yemek bana çok iyi enerji veriyor. 🍫", status: "like", anim: "bounce" },
@@ -447,31 +498,31 @@
                     dondurma: { text: "Uçtuktan sonra hararetini alan dondurmaya bayılırım. 🍦", status: "like", anim: "bounce" },
                     emoji: { text: "Adaleti savunan kahraman emojileri severim! 😊", status: "like", anim: "bounce" },
                     uzay: { text: "Bulutların da ötesindeki o uzay boşluğunda uçmayı hayal ediyorum. 🚀", status: "like", anim: "bounce" },
-                    kedi: { text: "Bazı kuşlar kedileri sevmez ama bu kedi çok adil and dost canlısı! 🐱", status: "like", anim: "bounce" },
+                    kedi: { text: "Bazı kuşlar kedileri sevmez ama bu kedi çok adil Jand dost canlısı! 🐱", status: "like", anim: "bounce" },
                     yagmur: { text: "Havada süzülürken yağmur damlalarıyla yıkanmak harika! 🌧️", status: "like", anim: "bounce" },
-                    parfum: { text: "Güzel and ferah kokan parfümler tüylerimi parlatıyor. 🧪", status: "like", anim: "bounce" },
+                    parfum: { text: "Güzel Jand ferah kokan parfümler tüylerimi parlatıyor. 🧪", status: "like", anim: "bounce" },
                     pamuk_seker: { text: "Pamuk şeker kanatlarıma yapışıyor, uçmamı zorlaştırıyor, sevmem! 🍭", status: "dislike", anim: "shake" },
                     sut: { text: "Kuşlar süt içmez, sistemime tamamen aykırı, getirme şunu. 🥛", status: "dislike", anim: "shake" },
                     rakun: { text: "Rakunlar yuvalardaki yumurtaları çalıyor, adaletsiz canlılar, asla sevmem! 🦝", status: "dislike", anim: "shake" },
-                    kaplan: { text: "Kaplanlar ormanın en haksız and vahşi avcıları! En nefret ettiğim şey! 🐯", status: "dislike", anim: "shake" },
+                    kaplan: { text: "Kaplanlar ormanın en haksız Jand vahşi avcıları! En nefret ettiğim şey! 🐯", status: "dislike", anim: "shake" },
                     karanlik: { text: "Karanlık çöktüğünde havada adalet nöbeti tutamıyorum, hiç sevmem. 🖤", status: "dislike", anim: "shake" }
                 }
             },
             "gus.jpg": {
                 personality: "Biraz Sinirli", msgIdle: "Arka sıra, sessiz olun bakayım! 😡",
-                qLikes: "Gofret, süt, rakun, üzüm, uzay, kaplan, kedi, yağmur and karanlığı severim. 🍇👹",
-                qDislikes: "Pamuk şeker, çikolata, elma, oyuncak, dondurma, emoji and parfümleri asla önüme getirmeyin! 😡",
+                qLikes: "Gofret, süt, rakun, üzüm, uzay, kaplan, kedi, yağmur Jand karanlığı severim. 🍇👹",
+                qDislikes: "Pamuk şeker, çikolata, elma, oyuncak, dondurma, emoji Jand parfümleri asla önüme getirmeyin! 😡",
                 qFavOne: "En sevdiğim şey tabii ki taze üzümler! 🍇",
                 qHateOne: "En sevmediğim şey dersimin düzenini bozan emojiler! 📴",
-                qFriend: "Okuldaki diğer çalışkan and disiplinli öğretmen arkadaşlarımdır. 🏫",
+                qFriend: "Okuldaki diğer çalışkan Jand disiplinli öğretmen arkadaşlarımdır. 🏫",
                 qIntro: "Ben Gus öğretmen. Cinsim bir canavar. Kuralları severim, sözümü dinlemeyenlere çok kızarım! 👹",
                 responses: {
                     gofret: { text: "Teneffüste çayın yanında gofret yemek fena fikir değil. 🧇", status: "like", anim: "angry" },
                     sut: { text: "Süt içmek ses tellerimi açıyor, ders anlatırken iyi oluyor. 🥛", status: "like", anim: "angry" },
-                    rakun: { text: "Rakunlar çok zeki and yaramazlık yapmadan dinleyen canlılar. 🦝", status: "like", anim: "angry" },
+                    rakun: { text: "Rakunlar çok zeki Jand yaramazlık yapmadan dinleyen canlılar. 🦝", status: "like", anim: "angry" },
                     uzum: { text: "İşte bu! Sınıfta bana getirilecek tek şey taze üzümdür, en sevdiğim! 🍇", status: "like", anim: "angry" },
-                    uzay: { text: "Uzayın sessizliği and kuralları harika, tıpkı istediğim sınıf gibi! 🚀", status: "like", anim: "angry" },
-                    kaplan: { text: "Kaplanlar gibi disiplinli and güçlü olmalısınız öğrencilerim! Severim. 🐯", status: "like", anim: "angry" },
+                    uzay: { text: "Uzayın sessizliği Jand kuralları harika, tıpkı istediğim sınıf gibi! 🚀", status: "like", anim: "angry" },
+                    kaplan: { text: "Kaplanlar gibi disiplinli Jand güçlü olmalısınız öğrencilerim! Severim. 🐯", status: "like", anim: "angry" },
                     kedi: { text: "Sınıfın köşesinde sessizce oturan uslu kedileri severim. 🐱", status: "like", anim: "angry" },
                     yagmur: { text: "Yağmurlu havalarda herkes içeri girer, okulda tam bir sessizlik olur. 🌧️", status: "like", anim: "angry" },
                     karanlik: { text: "Karanlıkta kimse yaramazlık yapamaz çünkü nöbetçi canavar benim! 🖤", status: "like", anim: "angry" },
@@ -488,18 +539,16 @@
 
         let bubbleTimeout;
 
-        // VERİLERİ REALTİME DB'YE YAZMA
         function syncStatus() {
             let activeRoomEl = document.querySelector('.room.active-room');
             let roomName = activeRoomEl ? activeRoomEl.id.replace('room-', '') : 'kitchen';
             db.ref('players/' + myId).set({
-                id: myId, pet: state.activePet, room: roomName, gold: state.gold, level: state.level, xp: state.xp,
-                emoji: state.emo, lastSeen: Date.now(), bars: state.bars
+                id: myId, pet: state.activePet, room: roomName, gold: state.gold, diamonds: state.diamonds, sugarTokens: state.sugarTokens,
+                level: state.level, xp: state.xp, emoji: state.emo, lastSeen: Date.now(), bars: state.bars, petLevels: state.petLevels
             });
         }
         db.ref('players/' + myId).onDisconnect().remove();
 
-        // CANLI OYUNCULARI VE TABLOYU DİNLEME
         db.ref('players').on('value', (snap) => {
             document.querySelectorAll('.other-players-area').forEach(a => a.innerHTML = "");
             const players = snap.val();
@@ -511,47 +560,40 @@
                 const p = players[id];
                 leaderboardArr.push(p);
 
-                if(id === myId) {
-                    if(p.bars) state.bars = p.bars;
-                    continue;
-                }
-                // 15 saniyeden uzun süre veri göndermeyen pasif oyuncuları odadan düşür ama barlarını listele
+                if(id === myId) continue;
                 let isOffline = (Date.now() - p.lastSeen > 15000);
-                
+
                 const area = document.getElementById('players-' + p.room);
                 if(area && !isOffline) {
                     const pDiv = document.createElement('div');
                     pDiv.className = 'other-player-pet';
                     pDiv.innerHTML = `<img src="${raw+p.pet}"><div style="font-size:8px; font-weight:bold; color:#6c5ce7;">${p.id} (Lvl ${p.level || 1})</div>`;
-
                     if(p.emoji) pDiv.innerHTML += `<div class="bubble-emoji">${p.emoji}</div>`;
-
-                    // Gelişmiş İhtiyaç Karşılama ve Seviye İzleme Menüsü
+                    
                     pDiv.onclick = () => {
                         let friendBars = p.bars || { hng: 50, cln: 50, slp: 50 };
                         let eylem = prompt(
-                            `🤝 ARKADAŞ PANELİ\nKodu: ${p.id}\nSeviyesi: Lvl ${p.level || 1}\n-----------------------\n` +
+                            `🤝 ARKADAŞ PANELİ\nKodu: ${p.id}\n-----------------------\n` +
                             `🍔 Açlık: %${Math.floor(friendBars.hng)}\n🧼 Temizlik: %${Math.floor(friendBars.cln)}\n😴 Uyku: %${Math.floor(friendBars.slp)}\n-----------------------\n` +
-                            `Ne yapmak istersin?\n1 - Arkadaşını Besle (1 Elma Harcar)\n2 - Arkadaşını Yıka`
+                            `1 - Arkadaşını Besle (1 Elma Harcar)\n2 - Arkadaşını Yıkar`
                         );
                         if(eylem === "1") {
                             if(state.fridge.elma > 0) {
                                 state.fridge.elma--;
                                 db.ref(`players/${id}/bars/hng`).transaction(h => Math.min(100, (h || 0) + 25));
                                 addXp(20);
-                                alert("Arkadaşını besledin! İhtiyacı karşılandı. +20✨ XP!");
+                                alert("Arkadaşını besledin! +20 XP");
                             } else { alert("Buzdolabında elma kalmamış!"); }
                         } else if(eylem === "2") {
                             db.ref(`players/${id}/bars/cln`).transaction(c => Math.min(100, (c || 0) + 30));
                             addXp(20);
-                            alert("Arkadaşına banyo yaptırdın! +20✨ XP!");
+                            alert("Arkadaşını yıkadın! +20 XP");
                         }
                     };
                     area.appendChild(pDiv);
                 }
             }
 
-            // LİDERLİK TABLOSU SIRALAMA
             leaderboardArr.sort((a,b) => (b.gold || 0) - (a.gold || 0));
             const lbEl = document.getElementById('leaderboard');
             if(lbEl) {
@@ -562,10 +604,250 @@
             }
         });
 
-        // SADECE EMOJİ REAKSİYON SİSTEMİ
         function sendEmoji(emoji) { state.emo = emoji; syncStatus(); setTimeout(() => { state.emo = ""; syncStatus(); }, 3000); }
 
-        // ODA 7: ENTEGRE DUYGU DÜNYASI FONKSİYONLARI
+        function updateBars(type, amount) { 
+            let oldVal = state.bars[type];
+            state.bars[type] = Math.min(100, Math.max(0, state.bars[type] + amount)); 
+            
+            if(oldVal < 100 && state.bars[type] >= 100) {
+                state.gold += 20;
+                state.petLevels[state.activePet]++;
+                alert(`🎉 İhtiyaç Barı Tamamen Dolduruldu! 20 Altın Kazanıldı! ${state.activePet.split('.')[0].toUpperCase()} Seviyesi: ${state.petLevels[state.activePet]}`);
+            }
+            render(); 
+            syncStatus(); 
+        }
+
+        function addXp(amount) {
+            state.xp += amount;
+            if(state.xp >= state.level * 100) {
+                state.xp -= (state.level * 100);
+                state.level++;
+                state.diamonds += 10;
+                alert(`🎊 TEBRİKLER SEVİYE ATLANDI! Yeni Seviye: ${state.level} | Ödül: 10 Elmas! 💎`);
+            }
+            render(); syncStatus();
+        }
+
+        // CANDY CRUSH MINI GAME MODÜLÜ
+        let selectedCell = null;
+        const candyPets = ["mini.sugar.jpg", "mini.squeak.jpg", "mini.dot.jpg", "mini.yeyet.jpg", "mini.gus.jpg", "mini.flip.jpg", "mini.moosey.jpg", "mini.blook.jpg", "sugar.jpg"];
+        let candyGridData = [];
+
+        function startCandyGame() {
+            if(state.sugarTokens <= 0) {
+                alert("Yetersiz Şeker Parası! Market Odasından 40 Altın karşılığında alabilirsin.");
+                return;
+            }
+            state.sugarTokens--;
+            document.getElementById('candy-canvas').style.display = 'flex';
+            document.getElementById('start-candy-btn').style.display = 'none';
+            
+            buildCandyGrid();
+            render();
+        }
+
+        function buildCandyGrid() {
+            candyGridData = [];
+            const gridEl = document.getElementById('candy-grid-element');
+            gridEl.innerHTML = "";
+
+            for(let i=0; i<36; i++) {
+                let randomPet = candyPets[Math.floor(Math.random() * candyPets.length)];
+                candyGridData.push(randomPet);
+
+                let cell = document.createElement('div');
+                cell.className = 'candy-cell';
+                cell.dataset.index = i;
+                cell.innerHTML = `<img src="${raw + randomPet}">`;
+                
+                cell.onclick = () => handleCandyClick(i, cell);
+                gridEl.appendChild(cell);
+            }
+            document.getElementById('candy-status').innerText = "Değişim Yap!";
+        }
+
+        function handleCandyClick(index, cellEl) {
+            if(selectedCell === null) {
+                selectedCell = index;
+                cellEl.classList.add('selected');
+            } else {
+                let prevIndex = selectedCell;
+                document.querySelectorAll('.candy-cell').forEach(c => c.classList.remove('selected'));
+                selectedCell = null;
+
+                let diff = Math.abs(prevIndex - index);
+                if(diff === 1 || diff === 6) {
+                    let temp = candyGridData[prevIndex];
+                    candyGridData[prevIndex] = candyGridData[index];
+                    candyGridData[index] = temp;
+
+                    buildCandyUIFromData();
+                    
+                    setTimeout(() => {
+                        state.diamonds += 4;
+                        alert("🎯 Harika Hamle! 4'lü Eşleştirme Görevi Tamamlandı! +4 Elmas Kazandın! 💎");
+                        
+                        document.getElementById('candy-canvas').style.display = 'none';
+                        document.getElementById('start-candy-btn').style.display = 'block';
+                        updateBars('fun', 30);
+                        render();
+                    }, 600);
+                }
+            }
+        }
+
+        function buildCandyUIFromData() {
+            const gridEl = document.getElementById('candy-grid-element');
+            gridEl.innerHTML = "";
+            candyGridData.forEach((pet, i) => {
+                let cell = document.createElement('div');
+                cell.className = 'candy-cell';
+                cell.dataset.index = i;
+                cell.innerHTML = `<img src="${raw + pet}">`;
+                cell.onclick = () => handleCandyClick(i, cell);
+                gridEl.appendChild(cell);
+            });
+        }
+
+        // MARKET SİSTEMİ MODÜLÜ
+        function renderMarket() {
+            const container = document.getElementById('market-products-element');
+            container.innerHTML = "";
+
+            for(let key in marketPrices) {
+                let div = document.createElement('div');
+                div.className = 'market-item';
+                let displayName = key.replace('_', ' ').toUpperCase();
+                let icon = key === 'pizza' ? '🍕' : '🎁';
+                
+                div.innerHTML = `
+                    <div style="font-weight:900; color:#cbd5e1; font-size:11px;">${icon} ${displayName}</div>
+                    <div style="color:#f1c40f; font-size:10px; margin:4px 0;">Fiyat: ${marketPrices[key]} 💰</div>
+                    <button class="btn" style="background:#4f46e5; padding:4px; font-size:10px; margin:0;" onclick="buyMarketItem('${key}')">Satın Al</button>
+                `;
+                container.appendChild(div);
+            }
+
+            let tokenDiv = document.createElement('div');
+            tokenDiv.className = 'market-item';
+            tokenDiv.style.border = "1px solid #10b981";
+            tokenDiv.innerHTML = `
+                <div style="font-weight:900; color:#10b981; font-size:11px;">🍬 1 ŞEKER PARASI</div>
+                <div style="color:#f1c40f; font-size:10px; margin:4px 0;">Fiyat: 40 💰</div>
+                <button class="btn" style="background:#10b981; padding:4px; font-size:10px; margin:0;" onclick="buySugarToken()">Hamle Al</button>
+            `;
+            container.appendChild(tokenDiv);
+        }
+
+        function buyMarketItem(key) {
+            let price = marketPrices[key];
+            if(state.gold >= price) {
+                state.gold -= price;
+                state.emoInventory[key]++;
+                alert(`🛍️ ${key.toUpperCase()} envanterinize eklendi!`);
+                render();
+                renderEmotionInventory();
+            } else {
+                alert("Yetersiz altın miktarı!");
+            }
+        }
+
+        function buySugarToken() {
+            if(state.gold >= 40) {
+                state.gold -= 40;
+                state.sugarTokens++;
+                alert("🍬 1 Adet Şeker Parası (Mini Oyun Hamlesi) Alındı!");
+                render();
+            } else {
+                alert("Yetersiz altın! 1 Şeker Parası 40 Altındır.");
+            }
+        }
+
+        // KOLEKSİYON ODASI MODÜLÜ (Dosya Adı formatı: karakteradi.karttürü.png olarak ayarlandı)
+        function renderCollection() {
+            const container = document.getElementById('cards-container-element');
+            container.innerHTML = "";
+
+            mainPets.forEach(petFile => {
+                let petName = petFile.split('.')[0]; // örn: "sugar", "blook"
+                let currentLvl = state.petLevels[petFile] || 1;
+
+                cardTiers.forEach(tier => {
+                    let isUnlocked = currentLvl >= tier.lvl;
+                    let box = document.createElement('div');
+                    box.className = `card-box ${isUnlocked ? 'unlocked' : 'locked'}`;
+                    
+                    // KART GÖRSELİ DİNAMİK DOSYA YOLU: karakteradi.karttürü.png
+                    let cardFileName = `${petName}.${tier.id}.png`;
+                    
+                    box.innerHTML = `
+                        <img src="${raw + cardFileName}" onerror="this.src='${raw + petFile}';">
+                        <div style="color:#fff; font-size:10px;">${petName.toUpperCase()}</div>
+                        <div class="card-tier" style="background:${tier.color}">${tier.name}</div>
+                        <div style="font-size:8px; margin-top:2px; color:#94a3b8;">${isUnlocked ? '🔓 AÇIK' : '🔒 Lvl ' + tier.lvl}</div>
+                    `;
+                    container.appendChild(box);
+                });
+            });
+        }
+
+        // ODA 7: DUYGU ODASI
+        function renderEmotionInventory() {
+            const container = document.getElementById('emotion-items-box');
+            container.innerHTML = "";
+            
+            let hasItems = false;
+            for(let key in state.emoInventory) {
+                if(key === 'pizza') continue;
+                let count = state.emoInventory[key];
+                if(count > 0) {
+                    hasItems = true;
+                    let btn = document.createElement('button');
+                    btn.className = "btn";
+                    btn.style.cssText = "background:#2563eb; font-size:9px; padding:4px 2px; position:relative;";
+                    btn.innerHTML = `${key.toUpperCase()} (${count})`;
+                    btn.onclick = () => useInventoryItem(key);
+                    container.appendChild(btn);
+                }
+            }
+            document.getElementById('emo-inv-display').innerText = hasItems ? "Eşyaya tıklayarak pete ver:" : "Stokta duygu eşyan yok, önce marketten satın al!";
+        }
+
+        function useInventoryItem(itemType) {
+            if(state.emoInventory[itemType] <= 0) return;
+            state.emoInventory[itemType]--;
+            
+            const charData = emotionalData[state.activePet];
+            if(!charData) {
+                alert("Bu karakterin duygu tepki verisi bulunamadı!");
+                renderEmotionInventory();
+                return;
+            }
+
+            const response = charData.responses[itemType] || { text: "Hmm, fena değil... 🙂", status: "like", anim: "bounce" };
+            const bbl = document.getElementById('room-bubble');
+            const petImg = document.getElementById('pet-img');
+            
+            bbl.style.display = 'block';
+            bbl.innerText = response.text;
+            petImg.className = "main-pet " + response.anim;
+
+            if(response.status === "like") {
+                state.happiness = Math.min(100, state.happiness + 15);
+                updateBars('fun', 15);
+            } else {
+                state.happiness = Math.max(0, state.happiness - 15);
+                updateBars('fun', -10);
+            }
+            
+            updateUiEmotion();
+            renderEmotionInventory();
+            clearTimeout(bubbleTimeout);
+            bubbleTimeout = setTimeout(() => { resetPetAnimation(); }, 4000);
+        }
+
         function askQuestion(qType) {
             const charData = emotionalData[state.activePet];
             if(!charData) return;
@@ -576,8 +858,7 @@
 
             if(charData.personality === "Şapşal" || charData.personality === "Neşeli") petImg.classList.add("bounce");
             else if(charData.personality === "Utangaç") petImg.classList.add("scared");
-            else if(state.activePet === "gus.jpg") petImg.classList.add("angry");
-            else if(state.activePet === "dot.jpg") petImg.classList.add("spin");
+            else petImg.classList.add("spin");
 
             const bbl = document.getElementById('room-bubble');
             bbl.style.display = 'block';
@@ -591,45 +872,11 @@
             bubbleTimeout = setTimeout(() => { resetPetAnimation(); }, 5000);
         }
 
-        function giveItem(itemType) {
-            const charData = emotionalData[state.activePet];
-            if(!charData) return;
-            clearTimeout(bubbleTimeout);
-
-            const petImg = document.getElementById('pet-img');
-            petImg.className = "main-pet";
-
-            const response = charData.responses[itemType];
-            const bbl = document.getElementById('room-bubble');
-            bbl.style.display = 'block';
-
-            if(response) {
-                bbl.innerText = response.text;
-                petImg.classList.add(response.anim);
-
-                if(response.status === "like") {
-                    state.happiness = Math.min(100, state.happiness + 15);
-                    updateBars('fun', 15);
-                } else {
-                    state.happiness = Math.max(0, state.happiness - 20);
-                    updateBars('fun', -15);
-                }
-            }
-            updateUiEmotion();
-            bubbleTimeout = setTimeout(() => { resetPetAnimation(); }, 4000);
-        }
-
         function resetPetAnimation() {
             const petImg = document.getElementById('pet-img');
             const bbl = document.getElementById('room-bubble');
             if(bbl) bbl.style.display = 'none';
-            if(petImg) {
-                petImg.className = "main-pet";
-                const charData = emotionalData[state.activePet];
-                if(charData && (charData.personality === "Şapşal" || charData.personality === "Neşeli")) {
-                    petImg.classList.add("bounce");
-                }
-            }
+            if(petImg) petImg.className = "main-pet";
         }
 
         function updateUiEmotion() {
@@ -641,158 +888,17 @@
             else mood.innerText = "Duygu: Sinirli 🤬";
         }
 
-        // BALON MİNİ OYUNU
-        function startMultiplayerBalloons() {
-            db.ref('balloons').remove();
-            document.getElementById('game-canvas').style.display = 'block';
-            document.getElementById('game-btn').style.display = 'none';
-            document.getElementById('game-btn2').style.display = 'none';
-
-            for(let i=0; i<6; i++) {
-                db.ref('balloons/b_' + i).set({
-                    left: Math.random() * 85,
-                    bottom: Math.random() * 90 + 20,
-                    color: `hsl(${Math.random()*360}, 75%, 60%)`
-                });
-            }
-            setTimeout(() => {
-                document.getElementById('game-canvas').style.display = 'none';
-                document.getElementById('game-btn').style.display = 'block';
-                document.getElementById('game-btn2').style.display = 'block';
-                db.ref('balloons').remove();
-            }, 10000);
-        }
-
-        db.ref('balloons').on('value', (snap) => {
-            const cvs = document.getElementById('game-canvas');
-            if(cvs.style.display !== 'block' || document.getElementById('btn-left') !== null) return;
-
-            document.querySelectorAll('.balloon').forEach(b => b.remove());
-            const balloons = snap.val();
-            if(!balloons) return;
-
-            for(let id in balloons) {
-                const bData = balloons[id];
-                const b = document.createElement('div');
-                b.className = 'balloon';
-                b.style.left = bData.left + "%";
-                b.style.bottom = bData.bottom + "px";
-                b.style.background = bData.color;
-
-                b.onclick = () => {
-                    db.ref('balloons/' + id).remove();
-                    state.gold += 5;
-                    updateBars('fun', 8);
-                };
-                cvs.appendChild(b);
-            }
-        });
-
-        // MEYVE YAKALA OYUNU (HATALAR GİDERİLDİ, SİLİNDİ, TOUCH UYUMLU)
-        let fruitIv = null;
-        let moveInterval = null;
-        function startCatchGame() {
-            const cvs = document.getElementById('game-canvas');
-            cvs.style.display = 'block';
-            document.getElementById('game-btn').style.display = 'none';
-            document.getElementById('game-btn2').style.display = 'none';
-
-            cvs.innerHTML = `
-                <div id="basket" style="position:absolute; bottom:30px; left:45%; font-size:24px; transition: left 0.08s linear; z-index:50;">🪣</div>
-                <div style="position:absolute; bottom:2px; width:100%; display:flex; justify-content:space-between; padding:0 8px; box-sizing:border-box; z-index:200;">
-                    <button class="btn" style="background:#2c3e50; padding:5px; width:45%; margin:0;" id="btn-left">👈 SOL</button>
-                    <button class="btn" style="background:#2c3e50; padding:5px; width:45%; margin:0;" id="btn-right">SAĞ 👉</button>
-                </div>
-            `;
-
-            let basketPos = 45;
-            function doMove(dir) {
-                if (dir === 'left') basketPos = Math.max(5, basketPos - 6);
-                else if (dir === 'right') basketPos = Math.min(85, basketPos + 6);
-                const bsk = document.getElementById('basket');
-                if(bsk) bsk.style.left = basketPos + "%";
-            }
-
-            const btnLeft = document.getElementById('btn-left');
-            const btnRight = document.getElementById('btn-right');
-
-            const clearInts = () => { clearInterval(moveInterval); };
-            btnLeft.addEventListener('mousedown', () => { clearInts(); moveInterval = setInterval(() => doMove('left'), 40); });
-            btnLeft.addEventListener('touchstart', (e) => { e.preventDefault(); clearInts(); moveInterval = setInterval(() => doMove('left'), 40); });
-            btnRight.addEventListener('mousedown', () => { clearInts(); moveInterval = setInterval(() => doMove('right'), 40); });
-            btnRight.addEventListener('touchstart', (e) => { e.preventDefault(); clearInts(); moveInterval = setInterval(() => doMove('right'), 40); });
-
-            btnLeft.addEventListener('mouseup', clearInts); btnLeft.addEventListener('touchend', clearInts);
-            btnRight.addEventListener('mouseup', clearInts); btnRight.addEventListener('touchend', clearInts);
-
-            fruitIv = setInterval(() => {
-                const f = document.createElement('div');
-                f.className = 'falling-fruit';
-                f.innerHTML = ['🍎','🥕','🍓'][Math.floor(Math.random()*3)];
-                let fLeft = Math.random() * 80 + 5;
-                f.style.left = fLeft + "%";
-                cvs.appendChild(f);
-
-                setTimeout(() => {
-                    if(Math.abs(fLeft - basketPos) <= 12) { 
-                        state.gold += 6;
-                        updateBars('fun', 6);
-
-                        const bsk = document.getElementById('basket');
-                        if(bsk) { bsk.style.transform = "scale(1.3)"; setTimeout(() => bsk.style.transform="scale(1)", 100); }
-
-                        // 🔥 YEYET ÇAPRAZ VURUŞ (CROSS-STRIKE) MEKANİĞİ ENTEGRASYONU
-                        if(state.activePet === "yeyet.jpg") {
-                            const petImg = document.getElementById('pet-img');
-                            if(petImg) {
-                                petImg.style.transition = "transform 0.12s ease";
-                                petImg.style.transform = "rotate(15deg) scale(1.25) translate(12px, -12px)";
-                                setTimeout(() => {
-                                    petImg.style.transform = "rotate(-15deg) scale(1.25) translate(-12px, -12px)";
-                                    setTimeout(() => { resetPetAnimation(); }, 120);
-                                }, 120);
-                            }
-                        }
-                    }
-                    f.remove();
-                }, 2200);
-            }, 850);
-
-            setTimeout(() => {
-                clearInterval(fruitIv); clearInterval(moveInterval);
-                cvs.style.display = 'none';
-                document.getElementById('game-btn').style.display = 'block';
-                document.getElementById('game-btn2').style.display = 'block';
-                cvs.innerHTML = "";
-            }, 14000);
-        }
-
-        // LEVEL VE BAHÇE ALTYAPILARI
-        function addXp(amount) {
-            state.xp += amount;
-            if(state.xp >= state.level * 100) {
-                state.xp -= (state.level * 100);
-                state.level++;
-                state.gold += 50;
-                alert(`🎊 TEBRİKLER SEVİYE ATLANDI! Yeni Seviye: ${state.level}`);
-            }
-            render(); syncStatus();
-        }
-
-        function craftSmoothie() {
-            if(state.fridge.elma >= 1 && state.fridge.çilek >= 1) {
-                state.fridge.elma--; state.fridge.çilek--;
-                updateBars('hng', 45); updateBars('hth', 45); addXp(25);
-                alert("🍹 Harika bir Smoothie hazırlandı!");
-            } else { alert("Yetersiz malzeme! 1 Elma ve 1 Çilek gerekli."); }
-        }
-
         function changeRoom(id, btn) {
             document.querySelectorAll('.room').forEach(r => r.classList.remove('active-room'));
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('on'));
             document.getElementById('room-' + id).classList.add('active-room');
             btn.classList.add('on');
             resetPetAnimation();
+            
+            if(id === 'market') renderMarket();
+            if(id === 'collection') renderCollection();
+            if(id === 'emotion') renderEmotionInventory();
+            
             syncStatus();
         }
 
@@ -807,33 +913,19 @@
         function selectChar(p) { state.activePet = p; state.happiness = 80; document.getElementById('char-overlay').style.display = 'none'; render(); updateUiEmotion(); syncStatus(); }
         function closeCharMenu() { document.getElementById('char-overlay').style.display = 'none'; }
 
-        function updateBars(type, amount) { state.bars[type] = Math.min(100, Math.max(0, state.bars[type] + amount)); render(); syncStatus(); }
-
-        function setupSeedUI(btn) {
-            btn.parentElement.querySelectorAll('button').forEach(b => b.style.border = 'none');
-            btn.style.border = '2px solid var(--p)';
-        }
-
-        function plant(i) {
-            if(state.plots[i]) {
-                if(state.plots[i].status === 'ready') {
-                    state.fridge[state.plots[i].type]++; state.plots[i] = null;
-                    document.getElementById('plot-'+i).innerHTML = "";
-                    document.getElementById('plot-'+i).classList.remove('ready');
-                    updateBars('gar', 15);
-                }
-                return;
+        function eatPizza() { 
+            if(state.emoInventory.pizza > 0) { 
+                state.emoInventory.pizza--; 
+                updateBars('hng', 30); 
+                addXp(10); 
+            } else {
+                alert("Stokta pizza yok! Market Odasından alabilirsin.");
             }
-            state.plots[i] = { type: state.seed, status: 'growing' };
-            const el = document.getElementById('plot-'+i);
-            el.innerHTML = state.seed === 'elma'?'🍎':state.seed==='havuç'?'🥕':'🍓';
-            setTimeout(() => { if(state.plots[i]) { state.plots[i].status = 'ready'; el.classList.add('ready'); } }, 4000);
         }
-
-        function buyPizza() { if(state.gold >= 15) { state.gold -= 15; updateBars('hng', 25); addXp(5); } }
         function wash() { updateBars('cln', 40); addXp(5); }
         function eatFridge() {
             for(let k in state.fridge) { if(state.fridge[k] > 0) { state.fridge[k]--; updateBars('hng', 20); return; } }
+            alert("Buzdolabında sebze kalmadı! Bahçede yetiştirebilirsin.");
         }
 
         function sleep() {
@@ -859,21 +951,63 @@
             });
         }
 
+        function setupSeedUI(btn) {
+            btn.parentElement.querySelectorAll('button').forEach(b => b.style.border = 'none');
+            btn.style.border = '2px solid var(--p)';
+        }
+
+        function plant(i) {
+            if(state.plots[i]) {
+                if(state.plots[i].status === 'ready') {
+                    state.fridge[state.plots[i].type]++; state.plots[i] = null;
+                    document.getElementById('plot-'+i).innerHTML = "";
+                    document.getElementById('plot-'+i).classList.remove('ready');
+                    updateBars('gar', 15);
+                }
+                return;
+            }
+            state.plots[i] = { type: state.seed, status: 'growing' };
+            const el = document.getElementById('plot-'+i);
+            el.innerHTML = state.seed === 'elma'?'🍎':state.seed==='havuç'?'🥕':'🍓';
+            setTimeout(() => { if(state.plots[i]) { state.plots[i].status = 'ready'; el.classList.add('ready'); } }, 4000);
+        }
+
+        function craftSmoothie() {
+            if(state.fridge.elma >= 1 && state.fridge.çilek >= 1) {
+                state.fridge.elma--; state.fridge.çilek--;
+                updateBars('hng', 45); updateBars('hth', 45); addXp(25);
+                alert("🍹 Müthiş bir Smoothie hazırlandı!");
+            } else { alert("Malzeme eksik! 1 Elma ve 1 Çilek gerekiyor."); }
+        }
+
         function render() {
             document.getElementById('gold').innerText = state.gold;
+            document.getElementById('diamonds').innerText = state.diamonds;
+            document.getElementById('sugar').innerText = state.sugarTokens;
             document.getElementById('xp').innerText = state.xp;
             document.getElementById('lvl').innerText = state.level;
             document.getElementById('pet-img').src = raw + state.activePet;
-            if(state.activeMini) { document.getElementById('mini-img').src = raw + state.activeMini; document.getElementById('mini-img').style.display = 'block'; }
+            
+            if(state.activeMini) { 
+                document.getElementById('mini-img').src = raw + state.activeMini; 
+                document.getElementById('mini-img').style.display = 'block'; 
+            }
+            
             document.getElementById('fridge-ui').innerText = `🍎:${state.fridge.elma} | 🥕:${state.fridge.havuç} | 🍓:${state.fridge.çilek}`;
-            for(let k in state.bars) { const fill = document.getElementById('fill-'+k); if(fill) fill.style.width = state.bars[k] + "%"; }
+            document.getElementById('inv-pizza').innerText = state.emoInventory.pizza;
+            document.getElementById('inv-fridge').innerText = (state.fridge.elma + state.fridge.havuç + state.fridge.çilek);
+            
+            for(let k in state.bars) { 
+                const fill = document.getElementById('fill-'+k); 
+                if(fill) fill.style.width = state.bars[k] + "%"; 
+            }
         }
 
         window.onload = () => {
             updateIndex(); render(); syncStatus(); updateUiEmotion(); resetPetAnimation();
-            // Zamanla azalan ihtiyaç barları
-            setInterval(() => { for(let k in state.bars) state.bars[k] = Math.max(0, state.bars[k] - 0.25); render(); }, 3500);
-            // Sunucuya aktif kalma sinyali gönderme
+            renderEmotionInventory();
+            
+            setInterval(() => { for(let k in state.bars) state.bars[k] = Math.max(0, state.bars[k] - 0.20); render(); }, 3500);
             setInterval(() => { syncStatus(); }, 4000);
         };
     </script>
